@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: hanjeonerp
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/hanjeonerp
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
