@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * ErrorCode는 애플리케이션에서 발생할 수 있는 다양한 오류를 정의하는 enum
  * 각 오류는 HTTP 상태 코드, 고유 코드, 그리고 사용자에게 보여줄 메시지를 포함
- * 이 eunm을 사용하여 일관된 오류 처리를 구현
+ * 이 enum을 사용하여 일관된 오류 처리를 구현
  */
 
 @Getter

@@ -3,7 +3,7 @@ package com.hanjeonerp.backend.core.exception;
 import lombok.Getter;
 
 /**
- * BaseException은 모든 사용자 정의 예외의 기본 클래
+ * BaseException은 모든 사용자 정의 예외의 기본 클래스
  * 이 클래스를 상속받아 구체적인 예외를 정의
  * 예외 코드와 메시지를 포함하며, RuntimeException을 상속
  */

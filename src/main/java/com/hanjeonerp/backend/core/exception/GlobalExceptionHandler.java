@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.stream.Collectors;
 
 
-/* * GlobalExceptionHandler
+/**
+ * GlobalExceptionHandler
  * 모든 예외를 처리하는 클래스
  * @RestControllerAdvice: 모든 @RequestMapping에 대해 적용되는 @ControllerAdvice
  * @ResponseStatus: HTTP 응답 상태 코드를 설정
