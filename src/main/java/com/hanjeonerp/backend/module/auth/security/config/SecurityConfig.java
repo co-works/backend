@@ -43,14 +43,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요 없는 요청 경로 설정
                         .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/signup",
-                                "/api/auth/refresh",
-                                "/v3/api-docs/**"
+                                "api/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-
 
                 .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
