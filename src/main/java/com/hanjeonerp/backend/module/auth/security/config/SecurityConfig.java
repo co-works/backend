@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요 없는 요청 경로 설정
                         .requestMatchers(
-                                "api/auth/login"
+                                "/api/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

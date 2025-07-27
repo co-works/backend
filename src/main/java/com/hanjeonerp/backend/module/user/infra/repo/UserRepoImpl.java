@@ -39,7 +39,7 @@ public class UserRepoImpl implements UserRepo {
     public void deleteById(Long id) {
         User user = jpaUserRepo.findById(id)
                 .orElseThrow(() -> new BadRequestException("유저가 존재하지 않습니다."));
-        user.delete();               //sofe delete
+        user.delete();               //soft delete
         jpaUserRepo.save(user);
     }
 

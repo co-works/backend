@@ -13,7 +13,7 @@ import org.hibernate.annotations.Where;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "is_deleted = false") //softe delete를 위한 조건절
+@Where(clause = "is_deleted = false") //soft delete를 위한 조건절
 public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,7 +68,7 @@ public class User extends BaseTimeEntity {
         return this.role == Role.SALESMAN;
     }
 
-    //sofe delete
+    //soft delete
     public void delete() {
         this.isDeleted = true;
     }
