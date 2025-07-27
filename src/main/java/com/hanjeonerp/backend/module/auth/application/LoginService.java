@@ -11,6 +11,7 @@ import com.hanjeonerp.backend.module.user.domain.vo.Username;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -29,7 +30,7 @@ public class LoginService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.UNAUTHORIZED, "존재하지 않는 사용자입니다."));
 
-        System.out.println(passwordEncoder.encode("admin1234"));
+
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadRequestException(ErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
