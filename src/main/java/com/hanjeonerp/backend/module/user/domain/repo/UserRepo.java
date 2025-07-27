@@ -11,9 +11,9 @@ public interface UserRepo {
     // 사용자 조회
     Optional<User> findByUsername(Username username);
     // 사용자 아이디 중복 체크
-    boolean existsByUsername(Username username);
+    boolean existsByUsername(String username);
     // 사용자 ID로 조회
-    User findById(Long id);
+    Optional<User> findById(Long id);
     // 사용자 ID로 삭제
     void deleteById(Long id);
 }

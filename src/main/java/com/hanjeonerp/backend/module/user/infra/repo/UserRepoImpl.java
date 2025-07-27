@@ -26,13 +26,13 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
-    public boolean existsByUsername(Username username) {
-        return  jpaUserRepo.existsByUsername(username.getValue());
+    public boolean existsByUsername(String username) {
+        return jpaUserRepo.existsByUsername(username);
     }
 
     @Override
-    public User findById(Long id) {
-        return jpaUserRepo.findById(id).orElse(null);
+    public Optional<User> findById(Long id) {
+        return jpaUserRepo.findById(id);
     }
 
     @Override

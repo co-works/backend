@@ -7,11 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserService {
 
+    // 영업사원 생성 로직
     public User createSalesMan(String username, String encodedPassword, SalesmanProfile salesmanProfile) {
 
-        // 영업사원 생성 로직
+
         return User.createSalesman(username, encodedPassword, salesmanProfile);
     }
+
 
 }
 

@@ -37,6 +37,19 @@ public class User extends BaseTimeEntity {
         return new User(username, password, Role.SALESMAN, profile);
     }
 
+    //영업사원 수정
+    public void updateSalesmanInfo(String username, String password, SalesmanProfile profile) {
+        if (username != null) {
+            this.username = username;
+        }
+        if (password != null) {
+            this.password = password;
+        }
+        if (profile != null) {
+            this.salesmanProfile = profile;
+        }
+    }
+
     //도메인 생성자 (역할 제약 검증 포함)
     private User(String username, String password, Role role, SalesmanProfile profile) {
         this.username = username;
@@ -59,4 +72,19 @@ public class User extends BaseTimeEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void changeUsername(String newUsername) {
+        this.username = newUsername;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    public void changeProfile(SalesmanProfile newProfile) {
+        this.salesmanProfile = newProfile;
+    }
+
 }
+
+
