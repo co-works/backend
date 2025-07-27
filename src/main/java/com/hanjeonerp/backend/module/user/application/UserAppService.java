@@ -28,7 +28,7 @@ public class UserAppService {
         String encodedPassword = passwordEncoder.encode(req.getPassword());
 
         // 영업사원 프로필 생성
-        SalesmanProfile profile = SalesmanProfile.of(req);
+        SalesmanProfile profile = req.toProfile();
 
         //영업사원 생성
         User user = userService.createSalesMan(req.getUsername(), encodedPassword, profile);

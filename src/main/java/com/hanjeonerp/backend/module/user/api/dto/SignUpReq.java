@@ -35,21 +35,26 @@ public class SignUpReq {
     private String businessType;
     private String businessAddress;
 
-    public static SalesmanProfile of(SignUpReq req) {
+    // SignUpReq.java
+    public SalesmanProfile toProfile() {
         return new SalesmanProfile(
-                req.getSalesmanName(),
-                req.getSalesmanPhone(),
-                req.getSalesmanEmail(),
-                req.getSalesmanAddress(),
-                req.getCommissionRate(),
-                req.getSettlementMethod(),
-                req.getBankName(),
-                req.getBankAccount(),
-                req.getBusinessNumber(),
-                req.getRepresentative(),
-                req.getBusinessItem(),
-                req.getBusinessType(),
-                req.getBusinessAddress()
+                salesmanName,
+                salesmanPhone,
+                salesmanEmail,
+                salesmanAddress,
+                commissionRate,
+                settlementMethod,
+                bankName,
+                bankAccount,
+                businessNumber,
+                representative,
+                businessItem,
+                businessType,
+                businessAddress
         );
     }
+
+
 }
+
+

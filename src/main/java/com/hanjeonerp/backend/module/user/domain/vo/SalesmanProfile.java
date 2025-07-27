@@ -34,23 +34,6 @@ public class SalesmanProfile {
     private String businessAddress; // 사업장 주소
 
 
-    public static SalesmanProfile of(SignUpReq req) {
-        return new SalesmanProfile(
-                req.getSalesmanName(),
-                req.getSalesmanPhone(),
-                req.getSalesmanEmail(),
-                req.getSalesmanAddress(),
-                req.getCommissionRate(),
-                req.getSettlementMethod(),
-                req.getBankName(),
-                req.getBankAccount(),
-                req.getBusinessNumber(),
-                req.getRepresentative(),
-                req.getBusinessItem(),
-                req.getBusinessType(),
-                req.getBusinessAddress()
-        );
-    }
 
     }
 
