@@ -3,6 +3,7 @@ package com.hanjeonerp.backend.module.auth.jwt;
 import com.hanjeonerp.backend.core.exception.BadRequestException;
 import com.hanjeonerp.backend.core.exception.ErrorCode;
 import com.hanjeonerp.backend.module.auth.security.model.CustomUserPrincipal;
+import com.hanjeonerp.backend.module.user.domain.vo.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -29,9 +30,6 @@ public class JwtTokenProvider {
     @Value("${jwt.access-token-validity}")
     private long accessTokenValidity;
 
-    @Value("${jwt.refresh-token-validity}")
-    private long refreshTokenValidity;
-
     private Key key;
 
     /**
@@ -48,27 +46,12 @@ public class JwtTokenProvider {
      * @param username 사용자 이름
      * @return 생성된 Access Token
      */
-    public String generateAccessToken(Long userId, String username) {
+    public String generateAccessToken(Long userId, String username, Role role) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("userId",userId)
+                .claim("role",role)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    /**
-     * JWT Refresh Token을 생성
-     *
-     * @param username 사용자 이름
-     * @return 생성된 Refresh Token
-     */
-    public String generateRefreshToken(Long userId, String username) {
-
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("userId",userId)
-                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidity))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

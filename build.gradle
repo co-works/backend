@@ -28,7 +28,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     //lombok
-    compileOnly 'org.projectlombok:lombok:1.18.28'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     //auth
     implementation 'org.springframework.boot:spring-boot-starter-security'

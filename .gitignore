@@ -37,6 +37,9 @@ out/
 .vscode/
 
 ##sql
-*.sql
+*.sql'
 
+
+##application.yml
+applicaion.yml
 
