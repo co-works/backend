@@ -16,7 +16,7 @@ public class UpdateEngineerReq {
 
     public EngineerProfile toprofile(EngineerProfile existingProfile) {
         String name = existingProfile.getName();
-        if (this.name !=null)name =this.name;
+        if (this.name !=null) name = this.name;
 
         String phone = existingProfile.getPhone();
         if (this.phone != null) phone = this.phone;

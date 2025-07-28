@@ -17,7 +17,7 @@ public class EngineerController {
 
     //엔지니어 생성
     @PostMapping("/register")
-    public ApiResponse <EngineerRes> createEngineer(EngineerReq req) {
+    public ApiResponse <EngineerRes> createEngineer(@RequestBody EngineerReq req) {
         return ApiResponse.success(engineerAppService.createEngineer(req));
     }
 
@@ -25,12 +25,12 @@ public class EngineerController {
     @PostMapping("/update/{userId}")
     public ApiResponse<UpdateEngineerRes> updateEngineer(
             @PathVariable Long userId,
-            EngineerReq req
+            @RequestBody EngineerReq req
     ) {
         return ApiResponse.success(engineerAppService.updateEngineer(userId, req));
     }
 
-    //영업사원 삭제
+    //엔지니어 삭제
     @DeleteMapping("/delete/{userId}")
     public ApiResponse<Void> deleteEngineer(@PathVariable Long userId) {
         engineerAppService.deleteEngineer(userId);

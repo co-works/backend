@@ -34,12 +34,12 @@ public class EngineerAppService {
     }
 
     //엔지니어 수정
-    public UpdateEngineerRes updateEngineer(Long userId,EngineerReq req) {
+    public UpdateEngineerRes updateEngineer(Long userId, EngineerReq req) {
         //수정할 대상 찾기
         Engineer engineer = engineerRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("수정할 엔지니어가 존재하지 않습니다."));
 
-    //엔지니어 프로필 변경
+        //엔지니어 프로필 변경
         EngineerProfile engineerProfile = req.toProfile();
         engineer.changeProfile(engineerProfile);
 
@@ -50,7 +50,7 @@ public class EngineerAppService {
         return UpdateEngineerRes.from(engineer);
     }
 
-    //엔지니어 삭제 soft delte
+    //엔지니어 삭제 soft delete
     public void deleteEngineer(Long userId) {
         Engineer engineer = engineerRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("삭제할 엔지니어가 존재하지 않습니다."));
