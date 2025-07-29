@@ -21,16 +21,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ 3. Gradle로 Spring Boot 빌드 (JAR 생성)
+      # ✅ 3. Gradle로 Spring Boot 빌드 (실행 가능한 JAR 생성)
       - name: Build Spring Boot project
         run: ./gradlew clean build -x test
 
       # ✅ 4. .env 파일 생성 (Secrets에서)
+      # .env 파일은 빌드된 JAR와 함께 전송될 수 있도록 프로젝트 루트에 생성
       - name: Create .env file from secrets
         run: |
-          # .env 파일은 빌드된 JAR와 같은 디렉토리(build/libs)에 생성하여 한 번에 전송
-          # 또는 .env 파일을 루트에 생성하고, target을 ~/app으로 설정하여 같이 전송
-          # 여기서는 루트에 생성하여 target ~/app으로 보냅니다.
           echo "DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}" >> .env
           echo "DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}" >> .env
           echo "DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}" >> .env
@@ -46,8 +44,10 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
-          source: "build/libs/*.jar,.env" # .env 파일이 루트에 있으므로 이대로 유지
-          target: "~/app"
+          # build/libs 폴더 내부에서 plain.jar 및 -plain.jar를 제외한 일반 JAR 파일을 선택
+          # .env 파일은 루트에 있으므로 그대로 포함
+          source: "build/libs/*[!plain].jar,.env"
+          target: "~/app" # ~/app 폴더 바로 밑으로 복사되도록 target을 수정
           debug: true
 
       # ✅ 6. 서버에서 JAR 재시작 (기존 프로세스 종료 + 백그라운드 실행)
@@ -60,29 +60,41 @@ jobs:
           script: |
             cd ~/app
 
-            # 기존 프로세스 종료: 실행 중인 java -jar 프로세스가 없을 경우 오류가 발생하지 않도록
-            # '|| true'를 추가하여 오류 발생 시에도 스크립트가 계속 진행되도록 합니다.
-            # 하지만, 안전하게는 PID 파일을 사용하거나 systemctl service로 관리하는 것이 좋습니다.
-            # 여기서는 'pgrep'으로 먼저 확인 후 종료하는 방식으로 변경하여 오류를 방지합니다.
-            PID=$(pgrep -f 'java -jar')
-            if [ -n "$PID" ]; then
-              echo "Existing Java process found (PID: $PID). Killing it..."
-              kill -9 "$PID"
-              sleep 5 # 프로세스가 완전히 종료될 때까지 잠시 대기
+            # 기존 Java 프로세스 종료 (안정성 강화)
+            # pgrep -f로 해당 JAR 파일을 실행하는 프로세스만 정확히 종료
+            JAR_NAME_TO_FIND=$(ls -t *.jar | grep -v 'plain' | head -n 1) # plain.jar 제외
+            
+            if [ -n "$JAR_NAME_TO_FIND" ]; then
+              echo "Checking for existing process for $JAR_NAME_TO_FIND..."
+              PID=$(pgrep -f "java -jar $JAR_NAME_TO_FIND")
+              if [ -n "$PID" ]; then
+                echo "Existing Java process found (PID: $PID) for $JAR_NAME_TO_FIND. Killing it..."
+                kill -9 "$PID"
+                sleep 5 # 프로세스가 완전히 종료될 때까지 잠시 대기
+              else
+                echo "No existing Java process found for $JAR_NAME_TO_FIND."
+              fi
             else
-              echo "No existing Java process found. Starting a new one."
+              echo "No deployable JAR file found to check for existing process."
             fi
 
             # .env 파일에서 환경 변수 로드
-            export $(grep -v '^#' .env | xargs)
+            if [ -f .env ]; then
+              export $(grep -v '^#' .env | xargs)
+              echo ".env file loaded."
+            else
+              echo "Warning: .env file not found. Environment variables might not be set."
+            fi
 
-            # 최신 JAR 파일 찾아서 실행 (SNAPSHOT 제외)
-            # 배포 시에는 -SNAPSHOT이 아닌 릴리스 JAR를 사용하는 것이 좋습니다.
-            # 여기서는 마지막으로 수정된 JAR 파일을 찾아 실행하도록 합니다.
-            JAR_FILE=$(ls -t *.jar | head -n 1) # 가장 최신 수정된 JAR 파일 선택
+            # 실행할 JAR 파일 선택: plain.jar, -plain.jar, -SNAPSHOT.jar 제외
+            # ls -t : 최신 수정일 순 정렬
+            # grep -v 'plain' : 'plain'이 들어간 파일 제외
+            # grep -v 'SNAPSHOT' : 'SNAPSHOT'이 들어간 파일 제외 (프로덕션 배포가 아니더라도 dev 환경에서 명확성을 위해)
+            # head -n 1 : 첫 번째 결과 (가장 최신) 선택
+            JAR_FILE=$(ls -t *.jar | grep -v 'plain' | grep -v 'SNAPSHOT' | head -n 1)
             
             if [ -z "$JAR_FILE" ]; then
-              echo "Error: No JAR file found in ~/app."
+              echo "Error: No deployable JAR file found in ~/app after filtering. Check your build and copy steps."
               exit 1
             fi
 
@@ -90,5 +102,6 @@ jobs:
             # nohup으로 백그라운드 실행 및 로그 리다이렉션
             nohup java -jar "$JAR_FILE" > app.log 2>&1 &
 
-            echo "Application started."
-            sleep 10 # 앱이 완전히 시작될 때까지 잠시 대기 (선택 사항)
+            echo "Application startup command executed. Waiting for a few seconds..."
+            sleep 10 # 앱이 완전히 시작될 때까지 충분히 대기
+            echo "Deployment script finished."
