@@ -49,7 +49,6 @@ jobs:
             .env
           target: "~/app"
           debug: true
-        env:
 
       # ✅ 6. 서버에서 기존 애플리케이션 종료 및 새로운 버전 실행
       - name: Restart Spring Boot app on server
