@@ -38,7 +38,7 @@ jobs:
           echo "AWS_BUCKET=${{ secrets.AWS_BUCKET }}" >> .env
 
           echo "Finding latest JAR..."
-          JAR_PATH=$(find build/libs -name "*.jar" ! -name "*plain.jar" ! -name "*-SNAPSHOT.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+          JAR_PATH=$(find build/libs -name "*.jar" ! -name "*plain.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
 
           if [ -z "$JAR_PATH" ]; then
             echo "❌ No deployable JAR found!"
