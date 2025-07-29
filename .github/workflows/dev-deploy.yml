@@ -1,4 +1,4 @@
-name: Dev Deploy
+name: Dev Deploy - JAR Direct
 
 on:
   push:
@@ -21,12 +21,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ 3. Gradle로 Spring Boot 빌드 (실행 가능한 JAR 생성)
+      # ✅ 3. Gradle로 Spring Boot 프로젝트 빌드 (실행 가능한 JAR 생성)
       - name: Build Spring Boot project
         run: ./gradlew clean build -x test
 
-      # ✅ 4. .env 파일 생성 (Secrets에서)
-      # .env 파일은 빌드된 JAR와 함께 전송될 수 있도록 프로젝트 루트에 생성
+      # ✅ 4. .env 파일 생성 (Secrets)
       - name: Create .env file from secrets
         run: |
           echo "DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}" >> .env
@@ -36,21 +35,23 @@ jobs:
           echo "AWS_CREDENTIALS_ACCESS=${{ secrets.AWS_CREDENTIALS_ACCESS }}" >> .env
           echo "AWS_CREDENTIALS_SECRET=${{ secrets.AWS_CREDENTIALS_SECRET }}" >> .env
           echo "AWS_BUCKET=${{ secrets.AWS_BUCKET }}" >> .env
+          echo "Created .env file in repository root."
 
-      # ✅ 5. 빌드된 JAR 및 .env 파일 서버로 전송
-      - name: Copy files to server
+      # ✅ 5. 필요한 JAR 파일과 .env 파일을 서버의 ~/app 디렉토리로 직접 전송
+      - name: Copy deployable JAR and .env to server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
-          # build/libs 폴더 내부에서 plain.jar 및 -plain.jar를 제외한 일반 JAR 파일을 선택
-          # .env 파일은 루트에 있으므로 그대로 포함
-          source: "build/libs/*[!plain].jar,.env"
-          target: "~/app" # ~/app 폴더 바로 밑으로 복사되도록 target을 수정
+          source: |
+            $(find build/libs -name "*.jar" ! -name "*plain.jar" ! -name "*-SNAPSHOT.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+            .env
+          target: "~/app"
           debug: true
+        env:
 
-      # ✅ 6. 서버에서 JAR 재시작 (기존 프로세스 종료 + 백그라운드 실행)
+      # ✅ 6. 서버에서 기존 애플리케이션 종료 및 새로운 버전 실행
       - name: Restart Spring Boot app on server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -60,48 +61,59 @@ jobs:
           script: |
             cd ~/app
 
-            # 기존 Java 프로세스 종료 (안정성 강화)
-            # pgrep -f로 해당 JAR 파일을 실행하는 프로세스만 정확히 종료
-            JAR_NAME_TO_FIND=$(ls -t *.jar | grep -v 'plain' | head -n 1) # plain.jar 제외
-            
-            if [ -n "$JAR_NAME_TO_FIND" ]; then
-              echo "Checking for existing process for $JAR_NAME_TO_FIND..."
-              PID=$(pgrep -f "java -jar $JAR_NAME_TO_FIND")
-              if [ -n "$PID" ]; then
-                echo "Existing Java process found (PID: $PID) for $JAR_NAME_TO_FIND. Killing it..."
-                kill -9 "$PID"
-                sleep 5 # 프로세스가 완전히 종료될 때까지 잠시 대기
-              else
-                echo "No existing Java process found for $JAR_NAME_TO_FIND."
-              fi
-            else
-              echo "No deployable JAR file found to check for existing process."
-            fi
+            echo "--- Server Deployment Script Started ---"
 
-            # .env 파일에서 환경 변수 로드
-            if [ -f .env ]; then
-              export $(grep -v '^#' .env | xargs)
-              echo ".env file loaded."
-            else
-              echo "Warning: .env file not found. Environment variables might not be set."
-            fi
+            # 1. 기존 프로세스 종료
+            # ~/app 디렉토리 내의 실행 가능한 JAR 파일 이름을 먼저 찾습니다.
+            # -plain.jar, -SNAPSHOT.jar 파일은 이미 전송되지 않았다고 가정
+            DEPLOYABLE_JAR_NAME=$(ls -t *.jar | head -n 1) # 가장 최신 수정된 .jar 파일 (plain/SNAPSHOT 제외된 상태)
 
-            # 실행할 JAR 파일 선택: plain.jar, -plain.jar, -SNAPSHOT.jar 제외
-            # ls -t : 최신 수정일 순 정렬
-            # grep -v 'plain' : 'plain'이 들어간 파일 제외
-            # grep -v 'SNAPSHOT' : 'SNAPSHOT'이 들어간 파일 제외 (프로덕션 배포가 아니더라도 dev 환경에서 명확성을 위해)
-            # head -n 1 : 첫 번째 결과 (가장 최신) 선택
-            JAR_FILE=$(ls -t *.jar | grep -v 'plain' | grep -v 'SNAPSHOT' | head -n 1)
-            
-            if [ -z "$JAR_FILE" ]; then
-              echo "Error: No deployable JAR file found in ~/app after filtering. Check your build and copy steps."
+            if [ -z "$DEPLOYABLE_JAR_NAME" ]; then
+              echo "Error: No deployable JAR file found in ~/app to restart. Aborting."
               exit 1
             fi
 
-            echo "Starting $JAR_FILE in background..."
-            # nohup으로 백그라운드 실행 및 로그 리다이렉션
-            nohup java -jar "$JAR_FILE" > app.log 2>&1 &
+            echo "Target JAR for deployment: $DEPLOYABLE_JAR_NAME"
 
-            echo "Application startup command executed. Waiting for a few seconds..."
-            sleep 10 # 앱이 완전히 시작될 때까지 충분히 대기
-            echo "Deployment script finished."
+            # 해당 JAR 파일을 실행하는 프로세스 PID 확인
+            PID=$(pgrep -f "java -jar $DEPLOYABLE_JAR_NAME")
+
+            if [ -n "$PID" ]; then
+              echo "Existing Java process found (PID: $PID). Killing it..."
+              kill -9 "$PID"
+              sleep 5 # 프로세스 종료 대기
+              # 프로세스가 완전히 종료되었는지 재확인
+              if pgrep -f "java -jar $DEPLOYABLE_JAR_NAME" > /dev/null; then
+                echo "Warning: Process $PID did not terminate. Attempting forcefully again."
+                kill -9 "$PID" # 한 번 더 시도
+                sleep 5
+              fi
+            else
+              echo "No existing Java process found for $DEPLOYABLE_JAR_NAME. Proceeding to start."
+            fi
+
+            # 2. .env 파일에서 환경 변수 로드
+            if [ -f .env ]; then
+              echo "Loading environment variables from .env file..."
+              export $(grep -v '^#' .env | xargs)
+              echo ".env file loaded successfully."
+            else
+              echo "Warning: .env file not found in ~/app. Environment variables may not be set correctly."
+              # .env 파일이 없으면 강제로 종료할지, 경고만 주고 진행할지 선택 가능
+              # exit 1 # .env 파일 없으면 배포 실패로 간주하고 종료하려면 주석 해제
+            fi
+
+            # 3. 새로운 JAR 파일 실행
+            echo "Starting $DEPLOYABLE_JAR_NAME in background..."
+            # nohup으로 백그라운드 실행 및 로그 리다이렉션
+            nohup java -jar "$DEPLOYABLE_JAR_NAME" > app.log 2>&1 &
+
+            echo "Application startup command executed. Giving it some time to start..."
+            sleep 15 # 앱이 완전히 시작될 때까지 충분히 대기 (애플리케이션 초기화 시간에 따라 조절)
+            
+            # 4. 애플리케이션 상태 확인 (선택 사항)
+            # 애플리케이션이 특정 포트에서 Listen하는지 확인하는 등
+            # 예: curl -f http://localhost:8080/actuator/health || { echo "Application failed to start!"; exit 1; }
+            # 이 부분은 애플리케이션의 상태 확인 엔드포인트가 있을 때 유용합니다.
+
+            echo "--- Server Deployment Script Finished ---"
