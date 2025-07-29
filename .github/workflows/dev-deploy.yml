@@ -21,20 +21,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ 3. Gradle로 Spring Boot 프로젝트 빌드
+      # ✅ 3. Gradle 빌드 (테스트 제외)
       - name: Build Spring Boot project
         run: ./gradlew clean build -x test
 
-      # ✅ 3.5. 최신 JAR 파일 경로 추출
-      - name: Set JAR path as environment variable
-        id: jar-path
+      # ✅ 4. JAR + .env 파일 tar.gz로 묶기
+      - name: Package JAR and .env into tar.gz
         run: |
-          JAR_PATH=$(find build/libs -name "*.jar" ! -name "*plain.jar" ! -name "*-SNAPSHOT.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
-          echo "jar=$JAR_PATH" >> $GITHUB_OUTPUT
-
-      # ✅ 4. .env 파일 생성
-      - name: Create .env file from secrets
-        run: |
+          echo "Creating .env file..."
           echo "DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}" >> .env
           echo "DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}" >> .env
           echo "DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}" >> .env
@@ -42,22 +36,33 @@ jobs:
           echo "AWS_CREDENTIALS_ACCESS=${{ secrets.AWS_CREDENTIALS_ACCESS }}" >> .env
           echo "AWS_CREDENTIALS_SECRET=${{ secrets.AWS_CREDENTIALS_SECRET }}" >> .env
           echo "AWS_BUCKET=${{ secrets.AWS_BUCKET }}" >> .env
-          echo "Created .env file."
 
-      # ✅ 5. JAR + .env 파일 서버 전송
-      - name: Copy deployable JAR and .env to server
+          echo "Finding latest JAR..."
+          JAR_PATH=$(find build/libs -name "*.jar" ! -name "*plain.jar" ! -name "*-SNAPSHOT.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+
+          if [ -z "$JAR_PATH" ]; then
+            echo "❌ No deployable JAR found!"
+            exit 1
+          fi
+
+          echo "✅ Found JAR: $JAR_PATH"
+          mkdir -p deploy_bundle
+          cp "$JAR_PATH" deploy_bundle/
+          cp .env deploy_bundle/
+          tar -zcf bundle.tar.gz -C deploy_bundle .
+
+      # ✅ 5. tar.gz 파일 서버 전송
+      - name: Copy archive to server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
-          source: |
-            ${{ steps.jar-path.outputs.jar }}
-            .env
+          source: bundle.tar.gz
           target: "~/app"
           debug: true
 
-      # ✅ 6. 서버에서 앱 재시작
+      # ✅ 6. 서버에서 압축 해제 + 앱 재시작
       - name: Restart Spring Boot app on server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -65,9 +70,12 @@ jobs:
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
+            mkdir -p ~/app/app
             cd ~/app
 
-            echo "--- Server Deployment Script Started ---"
+            echo "--- Unpacking bundle ---"
+            tar -zxf bundle.tar.gz -C app
+            cd app
 
             DEPLOYABLE_JAR_NAME=$(ls -t *.jar | head -n 1)
 
@@ -79,16 +87,12 @@ jobs:
             echo "Target JAR: $DEPLOYABLE_JAR_NAME"
 
             PID=$(ps aux | grep "java -jar $DEPLOYABLE_JAR_NAME" | grep -v grep | awk '{print $2}')
-
             if [ -n "$PID" ]; then
               echo "Stopping existing process (PID: $PID)..."
               kill -9 "$PID"
               sleep 5
-            else
-              echo "No existing process found."
             fi
 
-            # 환경 변수 로딩 (공백 처리 안전)
             if [ -f .env ]; then
               echo "Loading environment variables..."
               while IFS='=' read -r key value
@@ -97,15 +101,15 @@ jobs:
               done < .env
               echo ".env loaded."
             else
-              echo "Error: .env file not found!"
+              echo "Error: .env not found!"
               exit 1
             fi
 
             echo "Starting application..."
             nohup java -jar "$DEPLOYABLE_JAR_NAME" > app.log 2>&1 &
-
             sleep 15
-            echo "Checking application status..."
+
+            echo "Checking application health..."
             curl -f http://localhost:8080/actuator/health || {
               echo "Application failed to start.";
               exit 1;
