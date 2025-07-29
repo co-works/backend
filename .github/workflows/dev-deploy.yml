@@ -70,49 +70,60 @@ jobs:
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            mkdir -p ~/app/app
+            mkdir -p ~/app
             cd ~/app
-
+            
             echo "--- Unpacking bundle ---"
-            tar -zxf bundle.tar.gz -C app
-            cd app
-
+            tar -zxf bundle.tar.gz
+            
             DEPLOYABLE_JAR_NAME=$(ls -t *.jar | head -n 1)
-
+            
             if [ -z "$DEPLOYABLE_JAR_NAME" ]; then
-              echo "Error: No JAR file found."
+              echo "❌ Error: No JAR file found."
               exit 1
             fi
-
-            echo "Target JAR: $DEPLOYABLE_JAR_NAME"
-
+            
+            echo "✅ Target JAR: $DEPLOYABLE_JAR_NAME"
+            
             PID=$(ps aux | grep "java -jar $DEPLOYABLE_JAR_NAME" | grep -v grep | awk '{print $2}')
             if [ -n "$PID" ]; then
-              echo "Stopping existing process (PID: $PID)..."
+              echo "🛑 Stopping existing process (PID: $PID)..."
               kill -9 "$PID"
               sleep 5
+            else
+              echo "ℹ️ No existing process running."
             fi
-
+            
             if [ -f .env ]; then
-              echo "Loading environment variables..."
+              echo "📦 Loading environment variables from .env..."
               while IFS='=' read -r key value
               do
                 export "$key=$value"
               done < .env
-              echo ".env loaded."
+              echo "✅ .env loaded."
             else
-              echo "Error: .env not found!"
+              echo "❌ Error: .env file not found!"
               exit 1
             fi
-
-            echo "Starting application..."
+            
+            echo "🚀 Starting application..."
             nohup java -jar "$DEPLOYABLE_JAR_NAME" > app.log 2>&1 &
-            sleep 15
-
-            echo "Checking application health..."
-            curl -f http://localhost:8080/actuator/health || {
-              echo "Application failed to start.";
-              exit 1;
-            }
-
-            echo "--- Deployment Finished Successfully ---"
+            sleep 5
+            
+            echo "⏳ Waiting for application to become healthy..."
+            for i in {1..10}; do
+              if curl -fs http://localhost:8080/actuator/health; then
+                echo "✅ Application is up!"
+                break
+              fi
+              echo "⌛ Attempt $i failed. Retrying in 3 seconds..."
+              sleep 3
+              if [ "$i" -eq 10 ]; then
+                echo "❌ Application failed to start in time."
+                echo "--- Last 50 lines of app.log ---"
+                tail -n 50 app.log
+                exit 1
+              fi
+            done
+            
+            echo "--- ✅ Deployment Finished Successfully ---"
