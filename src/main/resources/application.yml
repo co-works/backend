@@ -30,3 +30,12 @@ aws:
   stack:
     auto: false
   bucket: ${AWS_BUCKET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
