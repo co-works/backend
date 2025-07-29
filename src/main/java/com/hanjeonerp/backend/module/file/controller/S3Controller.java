@@ -22,16 +22,18 @@ public class S3Controller {
 
     @PostMapping("/upload")
     @Operation(summary = "파일 업로드용 URL 발급")
-    public ApiResponse<GenerateUploadUrlRes> generateUploadUrl(@AuthenticationPrincipal Long userId,
+    public ApiResponse<GenerateUploadUrlRes> generateUploadUrl(
+//            @AuthenticationPrincipal Long userId,
                                                                @RequestBody GenerateUploadUrlReq req) {
         return ApiResponse.success(s3Service.generateUploadUrl(req));
     }
 
 
 
-    @GetMapping("/view")
+    @PostMapping("/view")
     @Operation(summary = "파일 조회용 URL 발급")
-    public ApiResponse<GenerateViewUrlRes> generateViewUrl(@AuthenticationPrincipal Long userId,
+    public ApiResponse<GenerateViewUrlRes> generateViewUrl(
+//            @AuthenticationPrincipal Long userId,
                                                            @RequestBody GenerateViewUrlReq req) {
         return ApiResponse.success(s3Service.generateViewURL(req));
     }
