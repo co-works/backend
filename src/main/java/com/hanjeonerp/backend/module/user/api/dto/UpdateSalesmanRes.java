@@ -2,11 +2,11 @@ package com.hanjeonerp.backend.module.user.api.dto;
 
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor(staticName = "of")
+@Builder
 public class UpdateSalesmanRes {
 
     // 계정 정보
@@ -34,21 +34,23 @@ public class UpdateSalesmanRes {
     // User 객체로부터 UpdateSalesmanRes 생성
     public static UpdateSalesmanRes from(User user) {
         SalesmanProfile profile = user.getSalesmanProfile();
-        return UpdateSalesmanRes.of(
-                user.getUsername(),
-                profile.getSalesmanName(),
-                profile.getSalesmanPhone(),
-                profile.getSalesmanEmail(),
-                profile.getSalesmanAddress(),
-                profile.getCommissionRate(),
-                profile.getSettlementMethod().name(),
-                profile.getBankName(),
-                profile.getBankAccount(),
-                profile.getBusinessNumber(),
-                profile.getRepresentative(),
-                profile.getBusinessItem(),
-                profile.getBusinessType(),
-                profile.getBusinessAddress()
+        return UpdateSalesmanRes.builder()
+                .username(user.getUsername())
+                .salesmanName(profile.getSalesmanName())
+                .salesmanPhone(profile.getSalesmanPhone())
+                .salesmanEmail(profile.getSalesmanEmail())
+                .salesmanAddress(profile.getSalesmanAddress())
+                .commissionRate(profile.getCommissionRate())
+                .settlementMethod(profile.getSettlementMethod().name())
+                .bankName(profile.getBankName())
+                .bankAccount(profile.getBankAccount())
+                .businessNumber(profile.getBusinessNumber())
+                .representative(profile.getRepresentative())
+                .businessItem(profile.getBusinessItem())
+                .businessType(profile.getBusinessType())
+                .businessAddress(profile.getBusinessAddress())
+                .build(
         );
     }
 }
+
