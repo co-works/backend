@@ -28,6 +28,9 @@ jobs:
       # ✅ 4. .env 파일 생성 (Secrets에서)
       - name: Create .env file from secrets
         run: |
+          # .env 파일은 빌드된 JAR와 같은 디렉토리(build/libs)에 생성하여 한 번에 전송
+          # 또는 .env 파일을 루트에 생성하고, target을 ~/app으로 설정하여 같이 전송
+          # 여기서는 루트에 생성하여 target ~/app으로 보냅니다.
           echo "DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}" >> .env
           echo "DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}" >> .env
           echo "DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}" >> .env
@@ -43,7 +46,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER_NAME }}
           key: ${{ secrets.SERVER_KEY }}
-          source: "build/libs/*.jar,.env"
+          source: "build/libs/*.jar,.env" # .env 파일이 루트에 있으므로 이대로 유지
           target: "~/app"
           debug: true
 
@@ -56,6 +59,36 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           script: |
             cd ~/app
-            pkill -f 'java -jar' || true
+
+            # 기존 프로세스 종료: 실행 중인 java -jar 프로세스가 없을 경우 오류가 발생하지 않도록
+            # '|| true'를 추가하여 오류 발생 시에도 스크립트가 계속 진행되도록 합니다.
+            # 하지만, 안전하게는 PID 파일을 사용하거나 systemctl service로 관리하는 것이 좋습니다.
+            # 여기서는 'pgrep'으로 먼저 확인 후 종료하는 방식으로 변경하여 오류를 방지합니다.
+            PID=$(pgrep -f 'java -jar')
+            if [ -n "$PID" ]; then
+              echo "Existing Java process found (PID: $PID). Killing it..."
+              kill -9 "$PID"
+              sleep 5 # 프로세스가 완전히 종료될 때까지 잠시 대기
+            else
+              echo "No existing Java process found. Starting a new one."
+            fi
+
+            # .env 파일에서 환경 변수 로드
             export $(grep -v '^#' .env | xargs)
-            nohup java -jar $(ls *.jar | tail -n 1) > app.log 2>&1 &
+
+            # 최신 JAR 파일 찾아서 실행 (SNAPSHOT 제외)
+            # 배포 시에는 -SNAPSHOT이 아닌 릴리스 JAR를 사용하는 것이 좋습니다.
+            # 여기서는 마지막으로 수정된 JAR 파일을 찾아 실행하도록 합니다.
+            JAR_FILE=$(ls -t *.jar | head -n 1) # 가장 최신 수정된 JAR 파일 선택
+            
+            if [ -z "$JAR_FILE" ]; then
+              echo "Error: No JAR file found in ~/app."
+              exit 1
+            fi
+
+            echo "Starting $JAR_FILE in background..."
+            # nohup으로 백그라운드 실행 및 로그 리다이렉션
+            nohup java -jar "$JAR_FILE" > app.log 2>&1 &
+
+            echo "Application started."
+            sleep 10 # 앱이 완전히 시작될 때까지 잠시 대기 (선택 사항)
