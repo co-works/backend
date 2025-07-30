@@ -8,7 +8,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 public class GenerateUploadUrlRes {
@@ -16,7 +15,6 @@ public class GenerateUploadUrlRes {
     private List<UploadUrlRes> uploadUrlResList;
 
     @Getter
-    @Setter
     @Builder
     @AllArgsConstructor
     public static class UploadUrlRes {

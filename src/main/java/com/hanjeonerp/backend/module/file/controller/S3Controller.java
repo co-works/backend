@@ -9,18 +9,17 @@ import com.hanjeonerp.backend.module.file.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/s3")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "FileUpload", description = "S3 관련 컨트롤러")
 public class S3Controller {
 
     private final S3Service s3Service;
 
-    @PostMapping("/upload")
+    @PostMapping("/s3/upload")
     @Operation(summary = "파일 업로드용 URL 발급")
     public ApiResponse<GenerateUploadUrlRes> generateUploadUrl(
 //            @AuthenticationPrincipal Long userId,
@@ -30,7 +29,7 @@ public class S3Controller {
 
 
 
-    @PostMapping("/view")
+    @PostMapping("/s3/view")
     @Operation(summary = "파일 조회용 URL 발급")
     public ApiResponse<GenerateViewUrlRes> generateViewUrl(
 //            @AuthenticationPrincipal Long userId,

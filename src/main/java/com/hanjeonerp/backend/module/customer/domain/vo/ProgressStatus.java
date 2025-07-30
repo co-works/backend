@@ -16,8 +16,7 @@ public enum ProgressStatus {
     BUSINESS_CONFIRMATION("사업확인서"),
     FEE_SETTLEMENT("수수료 정산"),
     REJECTED("반려"),
-    NOTE("비고"),
-    ;
+    NOTE("비고");
 
     private final String description;
 
