@@ -14,8 +14,8 @@ public enum BuildingType {
     APARTMENT_COMPLEX("아파트단지(공동주택)"),
     SCHOOL("학교"),
     HOTEL("호텔"),
-    OTHER("기타"),
-    ;
+    OTHER("기타");
+
     private final String description;
 
 }
