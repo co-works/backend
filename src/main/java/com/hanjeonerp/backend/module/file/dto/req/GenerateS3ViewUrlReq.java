@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GenerateViewUrlReq {
+public class GenerateS3ViewUrlReq {
     List<ViewUrlReq> viewUrlReqList;
 
     @Getter

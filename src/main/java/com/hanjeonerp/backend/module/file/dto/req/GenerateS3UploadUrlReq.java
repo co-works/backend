@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GenerateUploadUrlReq {
+public class GenerateS3UploadUrlReq {
     List<UploadUrlReq> uploadUrlReqList;
 
     @Getter
