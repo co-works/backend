@@ -1,6 +1,7 @@
 package com.hanjeonerp.backend.module.file.domain.entity;
 
 import com.hanjeonerp.backend.core.common.BaseTimeEntity;
+import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,8 +17,9 @@ public class File extends BaseTimeEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
     @Column(name = "file_key", nullable = false)
     private String fileKey;   // S3 파일 키

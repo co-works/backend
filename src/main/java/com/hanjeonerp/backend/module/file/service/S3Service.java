@@ -1,14 +1,16 @@
 package com.hanjeonerp.backend.module.file.service;
 
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
-import com.hanjeonerp.backend.module.file.dto.req.GenerateUploadUrlReq;
-import com.hanjeonerp.backend.module.file.dto.req.GenerateViewUrlReq;
-import com.hanjeonerp.backend.module.file.dto.res.GenerateUploadUrlRes;
-import com.hanjeonerp.backend.module.file.dto.res.GenerateViewUrlRes;
+import com.hanjeonerp.backend.module.file.dto.req.GenerateS3UploadUrlReq;
+import com.hanjeonerp.backend.module.file.dto.req.GenerateS3ViewUrlReq;
+import com.hanjeonerp.backend.module.file.dto.res.GenerateS3UploadUrlRes;
+import com.hanjeonerp.backend.module.file.dto.res.GenerateS3ViewUrlRes;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
@@ -31,11 +34,11 @@ public class S3Service {
     private final S3Presigner s3Presigner;
 
     // 업로드 URL 생성
-    public GenerateUploadUrlRes generateUploadUrl(GenerateUploadUrlReq req) {
+    public GenerateS3UploadUrlRes generateS3UploadUrl(GenerateS3UploadUrlReq req) {
 
-        List<GenerateUploadUrlRes.UploadUrlRes> uploadUrlResList = new ArrayList<>();
+        List<GenerateS3UploadUrlRes.UploadUrlRes> uploadUrlResList = new ArrayList<>();
 
-        for (GenerateUploadUrlReq.UploadUrlReq item : req.getUploadUrlReqList()) {
+        for (GenerateS3UploadUrlReq.UploadUrlReq item : req.getUploadUrlReqList()) {
             // 0. 파일 키 생성
             String fileId = UUID.randomUUID().toString();
             FileCategory category = item.getCategory(); // 파일카테고리
@@ -58,7 +61,7 @@ public class S3Service {
             // 3. URL 생성
             String uploadUrl = s3Presigner.presignPutObject(putObjectPresignRequest).url().toString();
 
-            GenerateUploadUrlRes.UploadUrlRes uploadUrlRes = GenerateUploadUrlRes.UploadUrlRes.builder()
+            GenerateS3UploadUrlRes.UploadUrlRes uploadUrlRes = GenerateS3UploadUrlRes.UploadUrlRes.builder()
                     .clientId(item.getClientId())
                     .fileKey(fileKey)
                     .uploadUrl(uploadUrl)
@@ -66,16 +69,16 @@ public class S3Service {
             uploadUrlResList.add(uploadUrlRes);
         }
 
-        return GenerateUploadUrlRes.builder()
+        return GenerateS3UploadUrlRes.builder()
                 .uploadUrlResList(uploadUrlResList)
                 .build();
     }
 
     // 조회용 URL 생성
-    public GenerateViewUrlRes generateViewURL(GenerateViewUrlReq req) {
-        List<GenerateViewUrlRes.ViewUrlRes> viewUrlResList = new ArrayList<>();
+    public GenerateS3ViewUrlRes generateS3ViewURL(GenerateS3ViewUrlReq req) {
+        List<GenerateS3ViewUrlRes.ViewUrlRes> viewUrlResList = new ArrayList<>();
 
-        for (GenerateViewUrlReq.ViewUrlReq item : req.getViewUrlReqList()) {
+        for (GenerateS3ViewUrlReq.ViewUrlReq item : req.getViewUrlReqList()) {
             // 1. 조회할 객체의 정보
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
@@ -92,7 +95,7 @@ public class S3Service {
             PresignedGetObjectRequest presignedUrl = s3Presigner.presignGetObject(presignRequest);
             String viewUrl = presignedUrl.toString();
 
-            GenerateViewUrlRes.ViewUrlRes viewUrlRes = GenerateViewUrlRes.ViewUrlRes.builder()
+            GenerateS3ViewUrlRes.ViewUrlRes viewUrlRes = GenerateS3ViewUrlRes.ViewUrlRes.builder()
                     .fileId(item.getFileId())
                     .fileKey(item.getFileKey())
                     .viewUrl(viewUrl)
@@ -100,8 +103,23 @@ public class S3Service {
             viewUrlResList.add(viewUrlRes);
         }
 
-        return GenerateViewUrlRes.builder()
+        return GenerateS3ViewUrlRes.builder()
                 .viewUrlResList(viewUrlResList)
                 .build();
+    }
+
+    // S3 파일 삭제
+    public String deleteS3File(String fileKey) {
+        // 1. 삭제 요청 생성
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        // 2. 삭제 실행
+        s3Client.deleteObject(deleteObjectRequest);
+
+        // 3. 삭제된 파일키
+        return "Deleted fileKey: " + fileKey;
     }
 }
