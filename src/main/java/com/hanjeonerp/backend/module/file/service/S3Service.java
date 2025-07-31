@@ -93,12 +93,12 @@ public class S3Service {
 
             // 3. URL 생성
             PresignedGetObjectRequest presignedUrl = s3Presigner.presignGetObject(presignRequest);
-            String viewUrl = presignedUrl.toString();
+            String viewUrl = presignedUrl.url().toString();
 
             GenerateS3ViewUrlRes.ViewUrlRes viewUrlRes = GenerateS3ViewUrlRes.ViewUrlRes.builder()
                     .fileId(item.getFileId())
                     .fileKey(item.getFileKey())
-                    .viewUrl(viewUrl)
+                    .fileUrl(viewUrl)
                     .build();
             viewUrlResList.add(viewUrlRes);
         }

@@ -39,3 +39,6 @@ management:
   endpoint:
     health:
       show-details: always
+
+util:
+  secret: ${UTIL_SECRET}

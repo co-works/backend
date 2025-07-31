@@ -20,6 +20,6 @@ public class GenerateS3ViewUrlRes {
 
         private String fileKey;
 
-        private String viewUrl;
+        private String fileUrl;
     }
 }

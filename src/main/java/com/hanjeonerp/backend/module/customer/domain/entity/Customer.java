@@ -1,5 +1,6 @@
 package com.hanjeonerp.backend.module.customer.domain.entity;
 
+import com.hanjeonerp.backend.core.common.BaseTimeEntity;
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Customer extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = true)
@@ -75,7 +76,7 @@ public class Customer {
     @Column(name = "project_cost", nullable = true)
     private BigDecimal projectCost; // 사업비용
 
-    @Column(name = "electricity_saving_rate_", nullable = true)
+    @Column(name = "electricity_saving_rate", nullable = true)
     private Double electricitySavingRate; // 전기요금 절감율(%)
 
     @Column(name = "subsidy", nullable = true)
