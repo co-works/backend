@@ -60,7 +60,7 @@ public class GenerateCustomerRes {
 
     @Schema(description = "건축물 형태", example = "")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private BuildingType buildingType; //건축물 형태 (공장, 지식산업센터, 빌딩, 주상복합, 아파트단지(공동주택), 학교, 호텔, 기타)
+    private BuildingType buildingType;
 
     @Schema(description = "임대차 공장 여부", example = "")
     private boolean isTenantFactory; //임대차 공장 여부
@@ -112,7 +112,7 @@ public class GenerateCustomerRes {
 
     @Schema(description = "진행 상태", example = "")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
+    private ProgressStatus progressStatus;
 
     @Schema(description = "첨부파일 리스트", example = "")
     List<CustomerFile> customerFileList;

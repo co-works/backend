@@ -5,6 +5,7 @@ import com.hanjeonerp.backend.module.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -43,13 +44,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요 없는 요청 경로 설정
                         .requestMatchers(
+                                HttpMethod.GET,
                                 // Swagger
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/api/auth/login", // 로그인
-                                "/actuator/health" // 헬스체크
+                                "/actuator/health", // 헬스체크
+                                "/api/customer/code",
+                                "/api/file/code",
+                                "/api/customer/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

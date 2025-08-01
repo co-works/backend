@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class GenerateS3UploadUrlRes {
+public class GenerateFileUploadUrlRes {
 
     private List<UploadUrlRes> uploadUrlResList;
 

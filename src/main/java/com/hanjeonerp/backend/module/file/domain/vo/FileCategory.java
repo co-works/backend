@@ -17,6 +17,6 @@ public enum FileCategory {
     INSURANCE("보증 보험 증권"),
     KEPCO_APPLICATION("한전 대관 신청서");
 
-    private final String description; // 파일 카테고리 설명
+    private final String label; // 파일 카테고리 설명
 
 }

@@ -4,7 +4,6 @@ import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +24,6 @@ public class GenerateCustomerReq {
     private String representative;
 
     @Schema(description = "사업자등록번호", example = "")
-    @NotNull
     private String businessNumber;
 
     @Schema(description = "업태", example = "")
@@ -90,30 +88,30 @@ public class GenerateCustomerReq {
     @Schema(description = "진행 상태", example = "")
     private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
 
-    @Schema(description = "첨부파일 리스트", nullable = false)
-    List<CustomerFile> customerFileList;
+    @Schema(description = "첨부파일 리스트", example = "")
+    List<attachmentFile> attachmentFileList;
 
     @Getter
     @Setter
     @Builder
     @AllArgsConstructor
-    public static class CustomerFile {
-        @Schema(description = "파일 키", nullable = false)
+    public static class attachmentFile {
+        @Schema(description = "파일 키", example = "")
         private String fileKey;
 
-        @Schema(description = "파일 카테고리", nullable = false)
+        @Schema(description = "파일 카테고리", example = "")
         private FileCategory category;
 
-        @Schema(description = "원본 파일명", nullable = false)
+        @Schema(description = "원본 파일명", example = "")
         private String originalFileName;
 
-        @Schema(description = "확장자", nullable = false)
+        @Schema(description = "확장자", example = "")
         private String extension;
 
-        @Schema(description = "콘텐츠 타입", nullable = false)
+        @Schema(description = "콘텐츠 타입", example = "")
         private String contentType;
 
-        @Schema(description = "사이즈", nullable = false)
+        @Schema(description = "사이즈", example = "")
         private Long size;
     }
 }

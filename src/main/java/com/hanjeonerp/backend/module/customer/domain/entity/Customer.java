@@ -54,7 +54,7 @@ public class Customer extends BaseTimeEntity {
 
     @Column(name = "building_type", nullable = true)
     @Enumerated(EnumType.STRING)
-    private BuildingType buildingType; //건축물 형태 (공장, 지식산업센터, 빌딩, 주상복합, 아파트단지(공동주택), 학교, 호텔, 기타)
+    private BuildingType buildingType; //건축물 형태
 
     @Column(name = "is_tenant_factory", nullable = true)
     private boolean isTenantFactory; //임대차 공장 여부
@@ -85,7 +85,10 @@ public class Customer extends BaseTimeEntity {
     @Column(name = "project_period", nullable = true)
     private String projectPeriod; // 수행기간
 
-    @Column(name = "progress_status", nullable = true)
+    @Column(name = "progress_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
+    private ProgressStatus progressStatus; //진행 상태
+
+    @Column(name = "is_delete", nullable = false)
+    private Boolean isDelete = false;
 }
