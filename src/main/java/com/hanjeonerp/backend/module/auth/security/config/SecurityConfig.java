@@ -43,7 +43,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요 없는 요청 경로 설정
                         .requestMatchers(
-                                "/api/auth/login",
+                                // Swagger
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/api/auth/login", // 로그인
                                 "/actuator/health" // 헬스체크
                         ).permitAll()
                         .anyRequest().authenticated()
