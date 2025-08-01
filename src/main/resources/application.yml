@@ -42,3 +42,11 @@ management:
 
 util:
   secret: ${UTIL_SECRET}
+
+springdoc:
+  cache:
+    disabled: false
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
