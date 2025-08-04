@@ -98,6 +98,9 @@ public class GenerateCustomerRes {
     @Schema(description = "담당 엔지니어 이메일", example = "")
     private String engineerEmail;
 
+    @Schema(description = "담당 엔지니어 주소", example = "")
+    private String engineerAddress;
+
     @Schema(description = "사업비용", example = "")
     private BigDecimal projectCost; // 사업비용
 
