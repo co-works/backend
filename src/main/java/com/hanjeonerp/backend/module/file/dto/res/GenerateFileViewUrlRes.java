@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class GenerateS3ViewUrlRes {
+public class GenerateFileViewUrlRes {
     private List<ViewUrlRes> viewUrlResList;
 
     @Getter
@@ -20,6 +20,6 @@ public class GenerateS3ViewUrlRes {
 
         private String fileKey;
 
-        private String viewUrl;
+        private String fileUrl;
     }
 }

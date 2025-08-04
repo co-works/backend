@@ -39,3 +39,14 @@ management:
   endpoint:
     health:
       show-details: always
+
+util:
+  secret: ${UTIL_SECRET}
+
+springdoc:
+  cache:
+    disabled: false
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha

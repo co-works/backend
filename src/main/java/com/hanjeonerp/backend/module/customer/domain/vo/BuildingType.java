@@ -16,6 +16,6 @@ public enum BuildingType {
     HOTEL("호텔"),
     OTHER("기타");
 
-    private final String description;
+    private final String label;
 
 }

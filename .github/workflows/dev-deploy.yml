@@ -36,6 +36,7 @@ jobs:
           echo "AWS_CREDENTIALS_ACCESS=${{ secrets.AWS_CREDENTIALS_ACCESS }}" >> .env
           echo "AWS_CREDENTIALS_SECRET=${{ secrets.AWS_CREDENTIALS_SECRET }}" >> .env
           echo "AWS_BUCKET=${{ secrets.AWS_BUCKET }}" >> .env
+          echo "UTIL_SECRET=${{ secrets.UTIL_SECRET }}" >> .env
 
           echo "Finding latest JAR..."
           JAR_PATH=$(find build/libs -name "*.jar" ! -name "*plain.jar" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')

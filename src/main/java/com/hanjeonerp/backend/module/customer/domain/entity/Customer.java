@@ -1,5 +1,6 @@
 package com.hanjeonerp.backend.module.customer.domain.entity;
 
+import com.hanjeonerp.backend.core.common.BaseTimeEntity;
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Customer extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = true)
@@ -53,7 +54,7 @@ public class Customer {
 
     @Column(name = "building_type", nullable = true)
     @Enumerated(EnumType.STRING)
-    private BuildingType buildingType; //건축물 형태 (공장, 지식산업센터, 빌딩, 주상복합, 아파트단지(공동주택), 학교, 호텔, 기타)
+    private BuildingType buildingType; //건축물 형태
 
     @Column(name = "is_tenant_factory", nullable = true)
     private boolean isTenantFactory; //임대차 공장 여부
@@ -75,7 +76,7 @@ public class Customer {
     @Column(name = "project_cost", nullable = true)
     private BigDecimal projectCost; // 사업비용
 
-    @Column(name = "electricity_saving_rate_", nullable = true)
+    @Column(name = "electricity_saving_rate", nullable = true)
     private Double electricitySavingRate; // 전기요금 절감율(%)
 
     @Column(name = "subsidy", nullable = true)
@@ -84,7 +85,10 @@ public class Customer {
     @Column(name = "project_period", nullable = true)
     private String projectPeriod; // 수행기간
 
-    @Column(name = "progress_status", nullable = true)
+    @Column(name = "progress_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
+    private ProgressStatus progressStatus; //진행 상태
+
+    @Column(name = "is_delete", nullable = false)
+    private Boolean isDelete = false;
 }
