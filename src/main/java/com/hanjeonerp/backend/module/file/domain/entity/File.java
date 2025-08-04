@@ -42,3 +42,4 @@ public class File extends BaseTimeEntity {
     @Column(name = "size", nullable = false)
     private Long size;               // 파일 크기 (bytes)
 }
+
