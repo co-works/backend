@@ -31,7 +31,7 @@ public class File extends BaseTimeEntity {
     private FileCategory category; // 예: 사업자등록증, 도면 등
 
     @Column(name = "original_file_name", nullable = false)
-    private String originalFilename; // 사용자 업로드 원본 이름
+    private String originalFileName; // 사용자 업로드 원본 이름
 
     @Column(name = "extension", nullable = false)
     private String extension;        // ex. jpg, png, xlsx

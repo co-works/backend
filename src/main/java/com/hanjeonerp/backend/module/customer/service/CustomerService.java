@@ -18,6 +18,7 @@ import com.hanjeonerp.backend.module.file.dto.res.GenerateFileViewUrlRes;
 import com.hanjeonerp.backend.module.file.service.FileService;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.repo.UserRepo;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +45,12 @@ public class CustomerService {
         User salesman = null;
 
         if (req.getSalesmanId() != null) {
-            salesman = userRepo.findById(req.getSalesmanId()).orElse(null);
+            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
         }
 
         User engineer = null;
         if (req.getEngineerId() != null) {
-            engineer = userRepo.findById(req.getEngineerId()).orElse(null);
+            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
         }
 
         // 파워 플래너 패스워드 암호화
@@ -87,14 +88,14 @@ public class CustomerService {
         customerRepository.save(customer);
 
         // 파일 저장
-        List<GenerateCustomerReq.attachmentFile> fileList = req.getAttachmentFileList();
+        List<File> fileList = req.getAttachmentFileList();
         if (!fileList.isEmpty()) {
-            for (GenerateCustomerReq.attachmentFile item : fileList) {
+            for (File item : fileList) {
                 File file = File.builder()
                         .customer(customer)
                         .fileKey(item.getFileKey())
                         .category(item.getCategory())
-                        .originalFilename(item.getOriginalFileName())
+                        .originalFileName(item.getOriginalFileName())
                         .extension(item.getExtension())
                         .contentType(item.getContentType())
                         .size(item.getSize())
@@ -131,7 +132,7 @@ public class CustomerService {
                             .customerId(file.getCustomer().getId())
                             .fileKey(file.getFileKey())
                             .category(file.getCategory())
-                            .originalFileName(file.getOriginalFilename())
+                            .originalFileName(file.getOriginalFileName())
                             .extension(file.getExtension())
                             .contentType(file.getContentType())
                             .size(file.getSize())
@@ -178,12 +179,11 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public GetCustomerRes getCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElse(null);
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
         if (customer == null) {
             return null;
         }
-
 
         User salesman = customer.getSalesmanId();
         User engineer = customer.getEngineerId();
@@ -212,7 +212,7 @@ public class CustomerService {
                             .customerId(file.getCustomer().getId())
                             .fileKey(file.getFileKey())
                             .category(file.getCategory())
-                            .originalFileName(file.getOriginalFilename())
+                            .originalFileName(file.getOriginalFileName())
                             .extension(file.getExtension())
                             .contentType(file.getContentType())
                             .size(file.getSize())
@@ -270,14 +270,131 @@ public class CustomerService {
 
     @Transactional
     public UpdateCustomerRes updateCustomer(Long customerId, UpdateCustomerReq req) {
-        Customer customer = customerRepository.findById(customerId).orElse(null);
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
         if (customer == null) {
             return null;
         }
 
-        
+        if (req.getCompanyName() != null) {
+            customer.setCompanyName(req.getCompanyName());
+        }
 
+        if (req.getRepresentative() != null) {
+            customer.setRepresentative(req.getRepresentative());
+        }
+
+        if (req.getBusinessNumber() != null) {
+            customer.setBusinessAddress(req.getBusinessNumber());
+        }
+
+        if (req.getBusinessType() != null) {
+            customer.setBusinessType(req.getBusinessType());
+        }
+
+        if (req.getBusinessItem() != null) {
+            customer.setBusinessItem(req.getBusinessItem());
+        }
+
+        if (req.getBusinessAddress() != null) {
+            customer.setBusinessAddress(req.getBusinessAddress());
+        }
+
+        if (req.getManagerName() != null) {
+            customer.setManagerName(req.getManagerName());
+        }
+
+        if (req.getCompanyPhone() != null) {
+            customer.setCompanyPhone(req.getCompanyPhone());
+        }
+
+        if (req.getEmail() != null) {
+            customer.setEmail(req.getEmail());
+        }
+
+        if (req.getPhoneNumber() != null) {
+            customer.setPhoneNumber(req.getPhoneNumber());
+        }
+
+        if (req.getPowerPlannerId() != null) {
+            customer.setPowerPlannerId(req.getPowerPlannerId());
+        }
+
+        if (req.getPowerPlannerPassword() != null) {
+            String encodePoserPlannerPassword = cryptoUtil.encrypt(req.getPowerPlannerPassword());
+            customer.setPowerPlannerPassword(encodePoserPlannerPassword);
+        }
+
+        if (req.getBuildingType() != null) {
+            customer.setBuildingType(req.getBuildingType());
+        }
+
+        if (req.getIsTenantFactory() != null) {
+            customer.setTenantFactory(req.getIsTenantFactory());
+        }
+
+        if (req.getJanuaryElectricUsage() != null) {
+            customer.setJanuaryElectricUsage(req.getJanuaryElectricUsage());
+        }
+
+        if (req.getAugustElectricUsage() != null) {
+            customer.setAugustElectricUsage(req.getAugustElectricUsage());
+        }
+
+        if (req.getSalesmanId() != null) {
+            User salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
+            customer.setSalesmanId(salesman);
+        }
+
+        if (req.getEngineerId() != null) {
+            User engineer = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
+            customer.setEngineerId(engineer);
+        }
+
+        if (req.getProjectCost() != null) {
+            customer.setProjectCost(req.getProjectCost());
+        }
+
+        if (req.getElectricitySavingRate() != null) {
+            customer.setElectricitySavingRate(req.getElectricitySavingRate());
+        }
+
+        if (req.getSubsidy() != null) {
+            customer.setSubsidy(req.getSubsidy());
+        }
+
+        if (req.getProjectPeriod() != null) {
+            customer.setProjectPeriod(req.getProjectPeriod());
+        }
+
+        if (req.getProgressStatus() != null) {
+            customer.setProgressStatus(req.getProgressStatus());
+        }
+
+        if (!req.getNewAttachmentFileList().isEmpty()) {
+            // db 저장
+            List<File> newFile = req.getNewAttachmentFileList().stream()
+                    .map(f -> File.builder()
+                            .fileKey(f.getFileKey())
+                            .category(f.getCategory())
+                            .originalFileName(f.getOriginalFileName())
+                            .extension(f.getExtension())
+                            .contentType(f.getContentType())
+                            .size(f.getSize())
+                            .build()).toList();
+            fileRepository.saveAll(newFile);
+        }
+
+        if (!req.getDeleteAttachmentFileList().isEmpty()) {
+            List<File> fileList = fileRepository.findAllById(req.getDeleteAttachmentFileList());
+            // S3 삭제처리
+            for (File file : fileList) {
+                fileService.deleteFile(file.getFileKey());
+            }
+
+            // DB 삭제처리
+            fileRepository.deleteAll(fileList);
+        }
 
         return UpdateCustomerRes.builder()
                 .build();

@@ -2,6 +2,7 @@ package com.hanjeonerp.backend.module.customer.dto.req;
 
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
+import com.hanjeonerp.backend.module.file.domain.entity.File;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -59,7 +60,7 @@ public class UpdateCustomerReq {
     private BuildingType buildingType; //건축물 형태 (공장, 지식산업센터, 빌딩, 주상복합, 아파트단지(공동주택), 학교, 호텔, 기타)
 
     @Schema(description = "임대차 공장 여부", example = "")
-    private boolean isTenantFactory; //임대차 공장 여부
+    private Boolean isTenantFactory; //임대차 공장 여부
 
     @Schema(description = "1월 전기사용량", example = "")
     private Long januaryElectricUsage;
@@ -89,31 +90,7 @@ public class UpdateCustomerReq {
     private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
 
     @Schema(description = "새로운 첨부파일 리스트", example = "")
-    List<newAttachmentFile> newAttachmentFileList;
-
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    public static class newAttachmentFile {
-        @Schema(description = "파일 키", example = "")
-        private String fileKey;
-
-        @Schema(description = "파일 카테고리", example = "")
-        private FileCategory category;
-
-        @Schema(description = "원본 파일명", example = "")
-        private String originalFileName;
-
-        @Schema(description = "확장자", example = "")
-        private String extension;
-
-        @Schema(description = "콘텐츠 타입", example = "")
-        private String contentType;
-
-        @Schema(description = "사이즈", example = "")
-        private Long size;
-    }
+    List<File> newAttachmentFileList;
 
     @Schema(description = "삭제 첨부파일 리스트(fileId)", example = "")
     List<Long> deleteAttachmentFileList;

@@ -2,6 +2,7 @@ package com.hanjeonerp.backend.module.customer.dto.req;
 
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
+import com.hanjeonerp.backend.module.file.domain.entity.File;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -89,29 +90,5 @@ public class GenerateCustomerReq {
     private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
 
     @Schema(description = "첨부파일 리스트", example = "")
-    List<attachmentFile> attachmentFileList;
-
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    public static class attachmentFile {
-        @Schema(description = "파일 키", example = "")
-        private String fileKey;
-
-        @Schema(description = "파일 카테고리", example = "")
-        private FileCategory category;
-
-        @Schema(description = "원본 파일명", example = "")
-        private String originalFileName;
-
-        @Schema(description = "확장자", example = "")
-        private String extension;
-
-        @Schema(description = "콘텐츠 타입", example = "")
-        private String contentType;
-
-        @Schema(description = "사이즈", example = "")
-        private Long size;
-    }
+    List<File> attachmentFileList;
 }
