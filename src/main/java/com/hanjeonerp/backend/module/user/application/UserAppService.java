@@ -67,7 +67,7 @@
             // profile 변경
             UserBasicProfile newBasic = req.toBasicProfile(user.getBasicProfile());
             SalesmanProfile newSalesman = req.toSalesmanProfile(user.getSalesmanProfile());
-            user.changSalesmaneProfile(newBasic, newSalesman);
+            user.changeSalesmaneProfile(newBasic, newSalesman);
 
             return UpdateSalesmanRes.from(user);
         }
@@ -111,7 +111,7 @@
 
             //엔지니어 프로필 변경
             UserBasicProfile engineerProfile = req.toProfile();
-            engineer.changEngineerProfile(engineerProfile);
+            engineer.changeEngineerProfile(engineerProfile);
 
             //엔지니어 저장
             engineer = userRepo.save(engineer);

@@ -26,22 +26,16 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private UserBasicProfile basicProfile; // 사용자 기본 프로필 정보 (이름, 전화번호, 이메일, 주소
+    private UserBasicProfile basicProfile; // 사용자 기본 프로필 정보 (이름, 전화번호, 이메일, 주소)
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "commissionRate", column = @Column(name = "commission_rate")),
-            @AttributeOverride(name = "settlementMethod", column = @Column(name = "settlement_method")),
-            @AttributeOverride(name = "bankName", column = @Column(name = "bank_name")),
-
-})
     private SalesmanProfile salesmanProfile; // SALESMAN 전용
 
     private boolean isDeleted = false;
 
     // 영업사원 생성
     public static User createSalesman(String username, String password, UserBasicProfile basicProfile, SalesmanProfile profile) {
-        return new User(username, password, Role.SALESMAN, basicProfile,profile);
+        return new User(username, password, Role.SALESMAN, basicProfile, profile);
     }
 
     //영업사원 수정
@@ -59,7 +53,7 @@ public class User extends BaseTimeEntity {
 
     //엔지니어 생성
     public static User createEngineer(String username, String password, UserBasicProfile profile) {
-        return new User(username, password, Role.ENGINEER,profile);
+        return new User(username, password, Role.ENGINEER, profile);
     }
 
     //영업사원 생성자 (역할 제약 검증 포함)
@@ -73,7 +67,7 @@ public class User extends BaseTimeEntity {
 
 
     //엔지니어 생성자(역할 제약 검증 포함)
-    private User(String username, String password, Role role,UserBasicProfile basicProfile) {
+    private User(String username, String password, Role role, UserBasicProfile basicProfile) {
         this.username = username;
         this.password = password;
         this.role = role;
@@ -103,11 +97,11 @@ public class User extends BaseTimeEntity {
         this.password = newPassword;
     }
 
-    public void changSalesmaneProfile(UserBasicProfile newProfile, SalesmanProfile newSalesmanProfile) {
+    public void changeSalesmaneProfile(UserBasicProfile newProfile, SalesmanProfile newSalesmanProfile) {
         this.basicProfile = newProfile;
         this.salesmanProfile = newSalesmanProfile;
     }
-    public void changEngineerProfile(UserBasicProfile newProfile) {
+    public void changeEngineerProfile(UserBasicProfile newProfile) {
         this.basicProfile = newProfile;
     }
 
