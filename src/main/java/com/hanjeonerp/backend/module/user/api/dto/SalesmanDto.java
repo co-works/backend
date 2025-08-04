@@ -1,6 +1,7 @@
 package com.hanjeonerp.backend.module.user.api.dto;
 
 import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -27,12 +28,12 @@ public class SalesmanDto {
     private String businessType;
     private String businessAddress;
 
-    public static SalesmanDto from(SalesmanProfile profile) {
+    public static SalesmanDto from(UserBasicProfile userBasicProfile, SalesmanProfile profile) {
         return SalesmanDto.builder()
-                .name(profile.getSalesmanName())
-                .phone(profile.getSalesmanPhone())
-                .email(profile.getSalesmanEmail())
-                .address(profile.getSalesmanAddress())
+                .name(userBasicProfile.getName())
+                .phone(userBasicProfile.getPhone())
+                .email(userBasicProfile.getEmail())
+                .address(userBasicProfile.getAddress())
                 .commissionRate(profile.getCommissionRate())
                 .settlementMethod(profile.getSettlementMethod().name())
                 .bankName(profile.getBankName())

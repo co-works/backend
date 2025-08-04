@@ -1,6 +1,6 @@
-package com.hanjeonerp.backend.module.engineer.api.dto.update;
+package com.hanjeonerp.backend.module.user.api.dto.update;
 
-import com.hanjeonerp.backend.module.engineer.domain.vo.EngineerProfile;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +14,7 @@ public class UpdateEngineerReq {
     private String email;
     private String address;
 
-    public EngineerProfile toprofile(EngineerProfile existingProfile) {
+    public UserBasicProfile toprofile(UserBasicProfile existingProfile) {
         String name = existingProfile.getName();
         if (this.name !=null) name = this.name;
 
@@ -27,7 +27,7 @@ public class UpdateEngineerReq {
         String address = existingProfile.getAddress();
         if (this.address != null) address = this.address;
 
-        return new EngineerProfile(
+        return new UserBasicProfile(
                 name,
                 phone,
                 email,

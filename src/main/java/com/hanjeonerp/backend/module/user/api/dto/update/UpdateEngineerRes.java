@@ -1,7 +1,8 @@
-package com.hanjeonerp.backend.module.engineer.api.dto.update;
+package com.hanjeonerp.backend.module.user.api.dto.update;
 
-import com.hanjeonerp.backend.module.engineer.domain.entity.Engineer;
-import com.hanjeonerp.backend.module.engineer.domain.vo.EngineerProfile;
+
+import com.hanjeonerp.backend.module.user.domain.entity.User;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,8 +15,8 @@ public class UpdateEngineerRes {
     private String email;
     private String address;
 
-   public static UpdateEngineerRes from(Engineer engineer) {
-       EngineerProfile profile = engineer.getEngineerProfile();
+   public static UpdateEngineerRes from(User User) {
+       UserBasicProfile profile = User.getBasicProfile();
        return UpdateEngineerRes.builder()
                .name(profile.getName())
                .phone(profile.getPhone())

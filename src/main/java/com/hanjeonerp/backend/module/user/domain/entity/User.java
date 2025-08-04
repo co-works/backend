@@ -3,7 +3,7 @@ package com.hanjeonerp.backend.module.user.domain.entity;
 import com.hanjeonerp.backend.core.common.BaseTimeEntity;
 import com.hanjeonerp.backend.module.user.domain.vo.Role;
 import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
-import com.hanjeonerp.backend.module.user.domain.vo.Username;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,19 +26,20 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private UserBasicProfile basicProfile; // 사용자 기본 프로필 정보 (이름, 전화번호, 이메일, 주소)
 
     @Embedded
-    private SalesmanProfile salesmanProfile; // 영업사원 전용 프로필  (관지라는 null)
+    private SalesmanProfile salesmanProfile; // SALESMAN 전용
 
     private boolean isDeleted = false;
 
     // 영업사원 생성
-    public static User createSalesman(String username, String password, SalesmanProfile profile) {
-        return new User(username, password, Role.SALESMAN, profile);
+    public static User createSalesman(String username, String password, UserBasicProfile basicProfile, SalesmanProfile profile) {
+        return new User(username, password, Role.SALESMAN, basicProfile, profile);
     }
 
     //영업사원 수정
-    public void updateSalesmanInfo(String username, String password, SalesmanProfile profile) {
+    public void updateSalesmanInfo(String username, String password, UserBasicProfile basicProfile, SalesmanProfile profile) {
         if (username != null) {
             this.username = username;
         }
@@ -50,13 +51,27 @@ public class User extends BaseTimeEntity {
         }
     }
 
-    //도메인 생성자 (역할 제약 검증 포함)
-    private User(String username, String password, Role role, SalesmanProfile profile) {
+    //엔지니어 생성
+    public static User createEngineer(String username, String password, UserBasicProfile profile) {
+        return new User(username, password, Role.ENGINEER, profile);
+    }
+
+    //영업사원 생성자 (역할 제약 검증 포함)
+    private User(String username, String password, Role role, UserBasicProfile basicProfile, SalesmanProfile profile) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.basicProfile = basicProfile;
         this.salesmanProfile = profile;
+    }
 
+
+    //엔지니어 생성자(역할 제약 검증 포함)
+    private User(String username, String password, Role role, UserBasicProfile basicProfile) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.basicProfile = basicProfile;
     }
     //관리자 권한 체크
     public boolean isAdmin() {
@@ -73,6 +88,7 @@ public class User extends BaseTimeEntity {
         this.isDeleted = true;
     }
 
+
     public void changeUsername(String newUsername) {
         this.username = newUsername;
     }
@@ -81,8 +97,12 @@ public class User extends BaseTimeEntity {
         this.password = newPassword;
     }
 
-    public void changeProfile(SalesmanProfile newProfile) {
-        this.salesmanProfile = newProfile;
+    public void changeSalesmaneProfile(UserBasicProfile newProfile, SalesmanProfile newSalesmanProfile) {
+        this.basicProfile = newProfile;
+        this.salesmanProfile = newSalesmanProfile;
+    }
+    public void changeEngineerProfile(UserBasicProfile newProfile) {
+        this.basicProfile = newProfile;
     }
 
 }

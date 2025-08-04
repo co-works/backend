@@ -1,12 +1,15 @@
-package com.hanjeonerp.backend.module.user.api.dto;
+package com.hanjeonerp.backend.module.user.api.dto.update;
 
 import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
 import com.hanjeonerp.backend.module.user.domain.vo.SettlementMethod;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class UpdateSalesmanReq {
 
     // 사용자 계정 정보
@@ -33,21 +36,23 @@ public class UpdateSalesmanReq {
     private String businessAddress;
 
 
-    // 생성자
-    public SalesmanProfile toProfile(SalesmanProfile existingProfile) {
-
-        String name = existingProfile.getSalesmanName();
+    public UserBasicProfile toBasicProfile(UserBasicProfile existingProfile) {
+        String name = existingProfile.getName();
         if (this.salesmanName != null) name = this.salesmanName;
 
-        String phone = existingProfile.getSalesmanPhone();
+        String phone = existingProfile.getPhone();
         if (this.salesmanPhone != null) phone = this.salesmanPhone;
 
-        String email = existingProfile.getSalesmanEmail();
+        String email = existingProfile.getEmail();
         if (this.salesmanEmail != null) email = this.salesmanEmail;
 
-        String address = existingProfile.getSalesmanAddress();
+        String address = existingProfile.getAddress();
         if (this.salesmanAddress != null) address = this.salesmanAddress;
 
+        return new UserBasicProfile(name, phone, email, address);
+    }
+
+    public SalesmanProfile toSalesmanProfile(SalesmanProfile existingProfile) {
         Double commission = existingProfile.getCommissionRate();
         if (this.commissionRate != null) commission = this.commissionRate;
 
@@ -78,9 +83,9 @@ public class UpdateSalesmanReq {
         if (this.businessAddress != null) bizAddress = this.businessAddress;
 
         return new SalesmanProfile(
-                name, phone, email, address,
                 commission, method, bank, account,
                 businessNumber, rep, item, type, bizAddress
         );
     }
+
 }

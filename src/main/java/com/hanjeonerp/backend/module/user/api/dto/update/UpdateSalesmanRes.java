@@ -1,7 +1,8 @@
-package com.hanjeonerp.backend.module.user.api.dto;
+package com.hanjeonerp.backend.module.user.api.dto.update;
 
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
+import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -33,13 +34,14 @@ public class UpdateSalesmanRes {
 
     // User 객체로부터 UpdateSalesmanRes 생성
     public static UpdateSalesmanRes from(User user) {
+        UserBasicProfile basicProfile = user.getBasicProfile();
         SalesmanProfile profile = user.getSalesmanProfile();
         return UpdateSalesmanRes.builder()
                 .username(user.getUsername())
-                .salesmanName(profile.getSalesmanName())
-                .salesmanPhone(profile.getSalesmanPhone())
-                .salesmanEmail(profile.getSalesmanEmail())
-                .salesmanAddress(profile.getSalesmanAddress())
+                .salesmanName(basicProfile.getName())
+                .salesmanPhone(basicProfile.getPhone())
+                .salesmanEmail(basicProfile.getEmail())
+                .salesmanAddress(basicProfile.getAddress())
                 .commissionRate(profile.getCommissionRate())
                 .settlementMethod(profile.getSettlementMethod().name())
                 .bankName(profile.getBankName())
