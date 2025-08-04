@@ -7,10 +7,7 @@ import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.customer.dto.req.GenerateCustomerReq;
 import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerReq;
-import com.hanjeonerp.backend.module.customer.dto.res.GenerateCustomerRes;
-import com.hanjeonerp.backend.module.customer.dto.res.GetCustomerCodeRes;
-import com.hanjeonerp.backend.module.customer.dto.res.GetCustomerRes;
-import com.hanjeonerp.backend.module.customer.dto.res.UpdateCustomerRes;
+import com.hanjeonerp.backend.module.customer.dto.res.*;
 import com.hanjeonerp.backend.module.file.domain.entity.File;
 import com.hanjeonerp.backend.module.file.domain.repo.FileRepository;
 import com.hanjeonerp.backend.module.file.dto.req.GenerateFileViewUrlReq;
@@ -259,13 +256,25 @@ public class CustomerService {
                 .build();
     }
 
-    public String checkCompanyName(String companyName) {
-        List<Customer> check = customerRepository.findByCompanyName(companyName);
-        if (check.isEmpty()) {
-            return "true";
+    public CheckCompanyNameRes checkCompanyName(String companyName) {
+        Customer customer = customerRepository.findByCompanyName(companyName);
+        if (customer == null) {
+            return CheckCompanyNameRes.builder()
+                    .possible(true)
+                    .salesmanName(null)
+                    .salesmanEmail(null)
+                    .salesmanPhoneNumber(null)
+                    .build();
         }
 
-        return "false";
+        User salesman = customer.getSalesmanId();
+
+        return CheckCompanyNameRes.builder()
+                .possible(false)
+                .salesmanName(salesman.getSalesmanProfile().getSalesmanName())
+                .salesmanPhoneNumber(salesman.getSalesmanProfile().getSalesmanPhone())
+                .salesmanEmail(salesman.getSalesmanProfile().getSalesmanEmail())
+                .build();
     }
 
     @Transactional

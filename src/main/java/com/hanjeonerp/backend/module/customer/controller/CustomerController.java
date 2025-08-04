@@ -3,10 +3,7 @@ package com.hanjeonerp.backend.module.customer.controller;
 import com.hanjeonerp.backend.core.common.ApiResponse;
 import com.hanjeonerp.backend.module.customer.dto.req.GenerateCustomerReq;
 import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerReq;
-import com.hanjeonerp.backend.module.customer.dto.res.GetCustomerCodeRes;
-import com.hanjeonerp.backend.module.customer.dto.res.GetCustomerRes;
-import com.hanjeonerp.backend.module.customer.dto.res.UpdateCustomerRes;
-import com.hanjeonerp.backend.module.customer.dto.res.GenerateCustomerRes;
+import com.hanjeonerp.backend.module.customer.dto.res.*;
 import com.hanjeonerp.backend.module.customer.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +31,7 @@ public class CustomerController {
 
     @GetMapping("/check/company-name")
     @Operation(summary = "업체명 중복체크")
-    public ApiResponse<String> checkCompanyName(String companyName) {
+    public ApiResponse<CheckCompanyNameRes> checkCompanyName(String companyName) {
         return ApiResponse.success(customerService.checkCompanyName(companyName));
     }
 
