@@ -3,10 +3,12 @@ package com.hanjeonerp.backend.module.user.infra.repo;
 import com.hanjeonerp.backend.core.exception.BadRequestException;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.repo.UserRepo;
+import com.hanjeonerp.backend.module.user.domain.vo.Role;
 import com.hanjeonerp.backend.module.user.domain.vo.Username;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -41,6 +43,16 @@ public class UserRepoImpl implements UserRepo {
                 .orElseThrow(() -> new BadRequestException("유저가 존재하지 않습니다."));
         user.delete();               //soft delete
         jpaUserRepo.save(user);
+    }
+
+    @Override
+    public Long countByRoleAndIsDeleted(Role role, boolean isDeleted) {
+        return jpaUserRepo.countByRoleAndIsDeleted(role, false);
+    }
+
+    @Override
+    public List<User> findByRoleAndIsDeleted(Role role, boolean isDeleted) {
+        return jpaUserRepo.findByRoleAndIsDeleted(role, false);
     }
 
 

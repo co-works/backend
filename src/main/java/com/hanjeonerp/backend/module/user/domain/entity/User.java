@@ -31,6 +31,7 @@ public class User extends BaseTimeEntity {
     @Embedded
     private SalesmanProfile salesmanProfile; // SALESMAN 전용
 
+    @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
     // 영업사원 생성

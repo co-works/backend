@@ -1,8 +1,10 @@
 package com.hanjeonerp.backend.module.user.domain.repo;
 
 import com.hanjeonerp.backend.module.user.domain.entity.User;
+import com.hanjeonerp.backend.module.user.domain.vo.Role;
 import com.hanjeonerp.backend.module.user.domain.vo.Username;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepo {
@@ -16,4 +18,8 @@ public interface UserRepo {
     Optional<User> findById(Long id);
     // 사용자 ID로 삭제
     void deleteById(Long id);
+    // 역할별 사용자 수 구하기
+    Long countByRoleAndIsDeleted(Role role, boolean isDeleted);
+    // 역할별 사용자 구하기
+    List<User> findByRoleAndIsDeleted(Role role, boolean isDeleted);
 }
