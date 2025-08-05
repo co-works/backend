@@ -274,7 +274,7 @@ public class CustomerService {
         return CheckCompanyNameRes.builder()
                 .possible(false)
                 .salesmanName(salesman.getBasicProfile().getName())
-                .salesmanPhoneNumber(salesman.getBasicProfile().getName())
+                .salesmanPhoneNumber(salesman.getBasicProfile().getPhone())
                 .salesmanEmail(salesman.getBasicProfile().getEmail())
                 .build();
     }
