@@ -65,8 +65,10 @@ public class JwtTokenProvider {
         Claims claims = getClaims(token);
         Long userId = claims.get("userId", Long.class);
         String username = claims.getSubject();
+        String roleStr = claims.get("role", String.class);
+        Role role = Role.valueOf(roleStr);
 
-        CustomUserPrincipal principal = new CustomUserPrincipal(userId, username);
+        CustomUserPrincipal principal = new CustomUserPrincipal(userId, username, role);
 
         return new UsernamePasswordAuthenticationToken(
                 principal,

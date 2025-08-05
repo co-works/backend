@@ -1,12 +1,15 @@
 package com.hanjeonerp.backend.module.auth.security.model;
 
+import com.hanjeonerp.backend.module.user.domain.vo.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * CustomUserPrincipal 클래스는 Spring Security의 UserDetails 인터페이스를 구현하여
@@ -19,9 +22,10 @@ public class CustomUserPrincipal implements UserDetails {
 
     private final Long userId;
     private final String username;
+    private final Role role;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
