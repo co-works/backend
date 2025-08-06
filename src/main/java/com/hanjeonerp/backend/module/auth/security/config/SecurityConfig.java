@@ -52,11 +52,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/api/auth/login", // 로그인
-                                "/actuator/health", // 헬스체크
-                                "/api/customer/code",
-                                "/api/file/code",
-                                "/api/customer/**"
-//                                "/api/home/**"
+                                "/actuator/health" // 헬스체크
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
