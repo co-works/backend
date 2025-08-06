@@ -26,38 +26,35 @@ public class HomeController {
 
     @GetMapping("/admin-dashboard")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "어드민 - 대시보드")
+    @Operation(summary = "어드민 - 대시보드")
     public ApiResponse<AdminDashboardRes> adminDashboard(@AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
-        Role role = userPrincipal.getRole();
-        System.out.println(role);
-
         return ApiResponse.success(homeService.adminDashboard());
     }
 
     @GetMapping("/admin-salesman")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "어드민 - 영업자 관리")
+    @Operation(summary = "어드민 - 영업자 관리")
     public ApiResponse<AdminSalesmanRes> adminSalesman() {
         return ApiResponse.success(homeService.adminSalesman());
     }
 
     @GetMapping("/admin-engineer")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "어드민 - 기술자 관리")
+    @Operation(summary = "어드민 - 기술자 관리")
     public ApiResponse<AdminEngineerRes> adminEngineer() {
         return ApiResponse.success(homeService.adminEngineer());
     }
 
     @GetMapping("/admin-customer")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(description = "어드민 - 수용가 관리")
+    @Operation(summary = "어드민 - 수용가 관리")
     public ApiResponse<AdminCustomerRes> adminCustomer() {
         return ApiResponse.success(homeService.adminCustomer());
     }
 
     @GetMapping("/user-customer")
     @PreAuthorize("hasRole('SALESMAN') or hasRole('ENGINEER')")
-    @Operation(description = "유저 - 수용가")
+    @Operation(summary = "유저 - 할당된 수용가 조회")
     public ApiResponse<UserCustomerRes> userCustomer(@AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         Role role = userPrincipal.getRole();
