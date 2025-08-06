@@ -34,7 +34,6 @@ public class UserController {
     // 영업사원 수정
     @Operation(summary = "영업사원 수정")
     @PutMapping("/salesman/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<UpdateSalesmanRes> updateSalesman(
             @Valid
             @PathVariable Long userId,
@@ -46,6 +45,7 @@ public class UserController {
     // 영업사원 삭제
     @Operation(summary = "영업사원 삭제")
     @DeleteMapping("/salesman/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteSalesman(@PathVariable Long userId) {
         userAppService.deleteSalesman(userId);
         return ApiResponse.success();
@@ -67,5 +67,14 @@ public class UserController {
             @RequestBody EngineerReq req
     ) {
         return ApiResponse.success(userAppService.updateEngineer(userId, req));
+    }
+
+    //기술사 삭제
+    @Operation(summary = "기술사 삭제")
+    @DeleteMapping("/engineer/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> deleteEngineer(@PathVariable Long userId) {
+        userAppService.deleteEngineer(userId);
+        return ApiResponse.success();
     }
 }
