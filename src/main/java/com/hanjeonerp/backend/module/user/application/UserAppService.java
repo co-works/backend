@@ -25,7 +25,7 @@
         private final UserRepo userRepo;
         private final PasswordEncoder passwordEncoder;
 
-        // 영업사원 회원가입
+        // 영업사원 추가
         @Transactional
         public SalesmanRes signUp(SalesmanReq req) {
             //비밀번호 암호화
@@ -47,7 +47,7 @@
 
         @Transactional
         public UpdateSalesmanRes updateSalesman(Long userId, UpdateSalesmanReq req) {
-            // 수정 대상은 userId로 찾음!
+            // 수정 대상은 userId로 찾음
             User user = userRepo.findById(userId)
                     .orElseThrow(() -> new BadRequestException("수정할 유저가 존재하지 않습니다."));
 
@@ -83,6 +83,7 @@
             user.delete();
             userRepo.save(user);
         }
+
         //엔지니어 추가
         public EngineerRes createEngineer(EngineerReq req) {
             //비밀번호 암호화
@@ -93,7 +94,6 @@
 
             //엔지니어 생성
             User engineer = userService.createEngineer(req.getUsername(), encodedPassword, engineerProfile);
-
 
 
             //엔지니어 저장
