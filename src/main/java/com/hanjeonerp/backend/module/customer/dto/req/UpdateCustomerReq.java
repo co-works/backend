@@ -89,6 +89,9 @@ public class UpdateCustomerReq {
     @Schema(description = "진행 상태", example = "")
     private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)
 
+    @Schema(description = "삭제여부")
+    private Boolean isDelete;
+
     @Schema(description = "새로운 첨부파일 리스트", example = "")
     List<NewAttachmentFile> newAttachmentFileList;
 
