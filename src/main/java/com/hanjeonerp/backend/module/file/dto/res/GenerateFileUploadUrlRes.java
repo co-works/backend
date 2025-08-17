@@ -17,7 +17,6 @@ public class GenerateFileUploadUrlRes {
     @Builder
     @AllArgsConstructor
     public static class UploadUrlRes {
-        private String clientId;
 
         private String fileKey;
 

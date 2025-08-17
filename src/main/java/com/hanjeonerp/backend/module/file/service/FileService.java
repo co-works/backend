@@ -65,7 +65,6 @@ public class FileService {
             String uploadUrl = s3Presigner.presignPutObject(putObjectPresignRequest).url().toString();
 
             GenerateFileUploadUrlRes.UploadUrlRes uploadUrlRes = GenerateFileUploadUrlRes.UploadUrlRes.builder()
-                    .clientId(item.getClientId())
                     .fileKey(fileKey)
                     .uploadUrl(uploadUrl)
                     .build();

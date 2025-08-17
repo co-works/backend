@@ -125,31 +125,28 @@ public class GenerateCustomerRes {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CustomerFile {
-        @Schema(description = "파일 ID", example = "")
+        @Schema(description = "파일 ID", example = "2")
         private Long fileId;
 
-        @Schema(description = "발주서 ID", example = "")
-        private Long customerId;
-
-        @Schema(description = "파일 키", example = "")
+        @Schema(description = "파일 키", example = "CONTRACT/849c19b6-5748-4e26-a3b7-b724cbf91258.png")
         private String fileKey;
 
-        @Schema(description = "파일 카테고리", example = "")
+        @Schema(description = "파일 카테고리", example = "CONTRACT")
         private FileCategory category;
 
-        @Schema(description = "원본 파일명", example = "")
+        @Schema(description = "원본 파일명", example = "떡상로고")
         private String originalFileName;
 
-        @Schema(description = "확장자", example = "")
+        @Schema(description = "확장자", example = "png")
         private String extension;
 
-        @Schema(description = "콘텐츠 타입", example = "")
+        @Schema(description = "콘텐츠 타입", example = "image/png")
         private String contentType;
 
-        @Schema(description = "사이즈", example = "")
+        @Schema(description = "사이즈(kb)", example = "2384723")
         private Long size;
 
-        @Schema(description = "파일 주소", example = "")
+        @Schema(description = "파일 주소", example = "https://")
         private String fileUrl;
     }
 }

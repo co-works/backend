@@ -58,15 +58,26 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 인증이 필요 없는 요청 경로 설정
-                        .requestMatchers(
+                        .requestMatchers(HttpMethod.GET,
                                 // Swagger
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/api/auth/login", // 로그인
-                                "/actuator/health" // 헬스체크
+                                "/actuator/health", // 헬스체크
+                                "/api/file/code", // 파일 코드
+                                "/api/customer/check/company-name", // 중복 수용가 체크
+                                "/api/customer/code" // 수용가 코드
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/file/upload", // 파일 업로드
+                                "/api/file/view", // 파일 조회 url 생성
+                                "/api/customer" // 수용가 생성
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/file" // 파일 삭제
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
 
