@@ -17,8 +17,6 @@ public class GenerateFileUploadUrlReq {
     @Setter
     @AllArgsConstructor
     public static class UploadUrlReq {
-        private String clientId;
-
         private FileCategory category;
 
         private String extension;
