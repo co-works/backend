@@ -64,7 +64,6 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api/auth/login", // 로그인
                                 "/actuator/health", // 헬스체크
                                 "/api/file/code", // 파일 코드
                                 "/api/customer/check/company-name", // 중복 수용가 체크
@@ -72,6 +71,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/file/upload", // 파일 업로드
+                                "/api/auth/login", // 로그인
                                 "/api/file/view", // 파일 조회 url 생성
                                 "/api/customer" // 수용가 생성
                         ).permitAll()
