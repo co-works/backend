@@ -39,6 +39,7 @@ public class User extends BaseTimeEntity {
         return new User(username, password, Role.SALESMAN, basicProfile, profile);
     }
 
+    //관리자 생성
     public static User createAdmin(String username, String password, UserBasicProfile basicProfile) {
         return new User(username, password, Role.ADMIN, basicProfile);
     }
