@@ -73,11 +73,12 @@ public class SecurityConfig {
                                 "/api/file/upload", // 파일 업로드
                                 "/api/auth/login", // 로그인
                                 "/api/file/view", // 파일 조회 url 생성
-                                "/api/customer" // 수용가 생성
+                                "/api/customer",// 수용가 생성
+                                "/api/admin/register" //관리자 등록
                         ).permitAll()
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/file" // 파일 삭제
-                                ).permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 
