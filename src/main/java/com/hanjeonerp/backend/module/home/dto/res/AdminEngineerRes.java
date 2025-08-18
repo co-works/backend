@@ -24,6 +24,12 @@ public class AdminEngineerRes {
         @Schema(description = "id", example = "")
         private Long id;
 
+        @Schema(description = "userId", example = "")
+        private String userId;
+
+        @Schema(description = "userPw", example = "")
+        private String userPw;
+
         @Schema(description = "이름", example = "")
         private String name;
 

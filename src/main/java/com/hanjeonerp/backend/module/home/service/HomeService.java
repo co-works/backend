@@ -64,6 +64,9 @@ public class HomeService {
         for (User item : list) {
             AdminSalesmanRes.AdminSalesman adminSalesman = AdminSalesmanRes.AdminSalesman.builder()
                     .id(item.getId())
+                    .userId(item.getUsername())
+                    .userPw(item.getPassword())
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
                     .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
                     .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
                     .commissionRate(Optional.ofNullable(item.getSalesmanProfile()).map(SalesmanProfile::getCommissionRate).orElse(null))
@@ -87,6 +90,9 @@ public class HomeService {
         for (User item : list) {
             AdminEngineerRes.AdminEngineer adminEngineer = AdminEngineerRes.AdminEngineer.builder()
                     .id(item.getId())
+                    .userId(item.getUsername())
+                    .userPw(item.getPassword())
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
                     .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
                     .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
                     .address(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getAddress).orElse(null))
