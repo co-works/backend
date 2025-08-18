@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserService {
 
+    //관리자 생성 로직
+    public User createAdmin(String username, String password, UserBasicProfile basicProfile) {
+        return User.createAdmin(username, password, basicProfile);
+    }
+
+
     // 영업사원 생성 로직
     public User createSalesMan(String username, String password, UserBasicProfile basicProfile, SalesmanProfile profile) {
         return User.createSalesman(username, password, basicProfile, profile);

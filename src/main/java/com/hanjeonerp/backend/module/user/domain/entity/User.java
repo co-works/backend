@@ -39,6 +39,10 @@ public class User extends BaseTimeEntity {
         return new User(username, password, Role.SALESMAN, basicProfile, profile);
     }
 
+    public static User createAdmin(String username, String password, UserBasicProfile basicProfile) {
+        return new User(username, password, Role.ADMIN, basicProfile);
+    }
+
     //영업사원 수정
     public void updateSalesmanInfo(String username, String password, UserBasicProfile basicProfile, SalesmanProfile profile) {
         if (username != null) {

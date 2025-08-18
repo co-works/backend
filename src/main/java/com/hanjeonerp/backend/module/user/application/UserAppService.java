@@ -1,10 +1,7 @@
     package com.hanjeonerp.backend.module.user.application;
 
     import com.hanjeonerp.backend.core.exception.BadRequestException;
-    import com.hanjeonerp.backend.module.user.api.dto.register.EngineerReq;
-    import com.hanjeonerp.backend.module.user.api.dto.register.EngineerRes;
-    import com.hanjeonerp.backend.module.user.api.dto.register.SalesmanReq;
-    import com.hanjeonerp.backend.module.user.api.dto.register.SalesmanRes;
+    import com.hanjeonerp.backend.module.user.api.dto.register.*;
     import com.hanjeonerp.backend.module.user.api.dto.update.UpdateEngineerRes;
     import com.hanjeonerp.backend.module.user.api.dto.update.UpdateSalesmanReq;
     import com.hanjeonerp.backend.module.user.api.dto.update.UpdateSalesmanRes;
@@ -13,6 +10,7 @@
     import com.hanjeonerp.backend.module.user.domain.service.UserService;
     import com.hanjeonerp.backend.module.user.domain.vo.SalesmanProfile;
     import com.hanjeonerp.backend.module.user.domain.vo.UserBasicProfile;
+    import jakarta.validation.Valid;
     import lombok.RequiredArgsConstructor;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
@@ -24,6 +22,25 @@
         private final UserService userService;
         private final UserRepo userRepo;
         private final PasswordEncoder passwordEncoder;
+
+        //관리자 등록
+        @Transactional
+        public AdminRes signUpAdmin(@Valid AdminReq req) {
+            //비밀번호 암호화
+            String encodedPassword = passwordEncoder.encode(req.getPassword());
+
+            // 관리자 프로필 생성
+            UserBasicProfile basicProfile = req.toProfile();
+
+            // 관리자 생성
+            User user = userService.createSalesMan(req.getUsername(), encodedPassword, basicProfile, null);
+
+            // 관리자 저장
+            userRepo.save(user);
+
+            // 응답 DTO 생성
+            return AdminRes.from(user);
+        }
 
         // 영업사원 추가
         @Transactional
@@ -129,6 +146,8 @@
             engineer.delete();
             userRepo.save(engineer);
         }
+
+
     }
 
 
