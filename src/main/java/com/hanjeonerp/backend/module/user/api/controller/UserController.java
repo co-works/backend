@@ -1,10 +1,7 @@
 package com.hanjeonerp.backend.module.user.api.controller;
 
 import com.hanjeonerp.backend.core.common.ApiResponse;
-import com.hanjeonerp.backend.module.user.api.dto.register.EngineerReq;
-import com.hanjeonerp.backend.module.user.api.dto.register.EngineerRes;
-import com.hanjeonerp.backend.module.user.api.dto.register.SalesmanReq;
-import com.hanjeonerp.backend.module.user.api.dto.register.SalesmanRes;
+import com.hanjeonerp.backend.module.user.api.dto.register.*;
 import com.hanjeonerp.backend.module.user.api.dto.update.UpdateEngineerRes;
 import com.hanjeonerp.backend.module.user.api.dto.update.UpdateSalesmanReq;
 import com.hanjeonerp.backend.module.user.api.dto.update.UpdateSalesmanRes;
@@ -23,6 +20,13 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserAppService userAppService;
+
+    // 관리자 등록
+    @Operation(summary = "관리자 등록")
+    @PostMapping("/admin/register")
+    public ApiResponse<AdminRes> createAdmin(@Valid @RequestBody AdminReq adminReq) {
+        return ApiResponse.success(userAppService.signUpAdmin(adminReq));
+    }
 
     // 영업사원 등록
     @Operation(summary = "영업사원 등록")
@@ -67,5 +71,13 @@ public class UserController {
             @RequestBody EngineerReq req
     ) {
         return ApiResponse.success(userAppService.updateEngineer(userId, req));
+    }
+
+    // 기술사 삭제
+    @Operation(summary = "기술사 삭제")
+    @DeleteMapping("/engineer/{userId}")
+    public ApiResponse<Void> deleteEngineer(@PathVariable Long userId) {
+        userAppService.deleteEngineer(userId);
+        return ApiResponse.success();
     }
 }
