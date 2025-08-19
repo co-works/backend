@@ -10,11 +10,13 @@ import lombok.Getter;
 public class SalesmanRes {
     private String username ;
     private SalesmanDto profile;
+    private String password;
 
-    public static SalesmanRes from(User user) {
+    public static SalesmanRes from(User user, String decryptedPassword) {
         return SalesmanRes.builder()
                 .username(user.getUsername())
                 .profile(SalesmanDto.from(user.getBasicProfile(), user.getSalesmanProfile()))
+                .password(decryptedPassword)
                 .build();
     }
 }

@@ -9,12 +9,14 @@ import lombok.Getter;
 @Builder
 public class EngineerRes {
     private UserBasicProfile engineerProfile;
+    private String password;
 
 
     // 엔지니어 응답 DTO 생성
-    public static EngineerRes from(User user) {
+    public static EngineerRes from(User user, String decryptedPassword) {
         return EngineerRes.builder()
                 .engineerProfile(user.getBasicProfile())
+                .password(user.getPassword())
                 .build();
 
     }

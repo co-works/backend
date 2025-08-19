@@ -39,4 +39,9 @@ public class CryptoUtil {
             throw new RuntimeException("복호화 실패", e);
         }
     }
+
+    /** DB의 암호문을 복호화해 raw와 비교 */
+    public boolean matches(String rawPassword, String encryptedFromDb) {
+        return decrypt(encryptedFromDb).equals(rawPassword);
+    }
 }

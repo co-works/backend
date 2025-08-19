@@ -31,9 +31,10 @@ public class UpdateSalesmanRes {
     private String businessItem;
     private String businessType;
     private String businessAddress;
+    private String password;
 
     // User 객체로부터 UpdateSalesmanRes 생성
-    public static UpdateSalesmanRes from(User user) {
+    public static UpdateSalesmanRes from(User user, String decryptedPassword) {
         UserBasicProfile basicProfile = user.getBasicProfile();
         SalesmanProfile profile = user.getSalesmanProfile();
         return UpdateSalesmanRes.builder()
@@ -51,6 +52,7 @@ public class UpdateSalesmanRes {
                 .businessItem(profile.getBusinessItem())
                 .businessType(profile.getBusinessType())
                 .businessAddress(profile.getBusinessAddress())
+                .password(decryptedPassword) // 비밀번호는 복호화된 값으로 설정
                 .build(
         );
     }

@@ -14,14 +14,16 @@ public class UpdateEngineerRes {
     private String phone;
     private String email;
     private String address;
+    private String password;
 
-   public static UpdateEngineerRes from(User User) {
+   public static UpdateEngineerRes from(User User, String decryptedPassword) {
        UserBasicProfile profile = User.getBasicProfile();
        return UpdateEngineerRes.builder()
                .name(profile.getName())
                .phone(profile.getPhone())
                .email(profile.getEmail())
                .address(profile.getAddress())
+                .password(User.getPassword())
                .build();
    }
 }
