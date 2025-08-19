@@ -2,6 +2,8 @@ package com.hanjeonerp.backend.module.user.application;
 
 import com.hanjeonerp.backend.core.exception.BadRequestException;
 import com.hanjeonerp.backend.core.util.CryptoUtil;
+import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
+import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
 import com.hanjeonerp.backend.module.user.api.dto.register.*;
 import com.hanjeonerp.backend.module.user.api.dto.update.UpdateEngineerRes;
 import com.hanjeonerp.backend.module.user.api.dto.update.UpdateSalesmanReq;
@@ -16,12 +18,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserAppService {
     private final UserService userService;
     private final UserRepo userRepo;
     private final CryptoUtil cryptoUtil;
+
+    private final CustomerRepository customerRepository;
 
     // 관리자 등록
     @Transactional
@@ -85,6 +91,14 @@ public class UserAppService {
                 .orElseThrow(() -> new BadRequestException("삭제할 유저가 존재하지 않습니다."));
         user.delete();
         userRepo.save(user);
+
+        // 유저 삭제 시 수용가에서 null 처리
+        List<Customer> customerList = customerRepository.findBySalesmanId(user);
+        if (!customerList.isEmpty()) {
+            for (Customer item : customerList) {
+                item.setSalesmanId(null);
+            }
+        }
     }
 
     //  엔지니어 등록
@@ -125,6 +139,14 @@ public class UserAppService {
                 .orElseThrow(() -> new BadRequestException("삭제할 엔지니어가 존재하지 않습니다."));
         engineer.delete();
         userRepo.save(engineer);
+
+        // 유저 삭제 시 수용가에서 null 처리
+        List<Customer> customerList = customerRepository.findByEngineerId(engineer);
+        if (!customerList.isEmpty()) {
+            for (Customer item : customerList) {
+                item.setEngineerId(null);
+            }
+        }
     }
 
 

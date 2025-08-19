@@ -1,5 +1,6 @@
 package com.hanjeonerp.backend.module.home.service;
 
+import com.hanjeonerp.backend.core.util.CryptoUtil;
 import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
 import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
@@ -22,6 +23,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class HomeService {
+    private final CryptoUtil cryptoUtil;
+
     private final UserRepo userRepository;
     private final CustomerRepository customerRepository;
 
@@ -64,6 +67,9 @@ public class HomeService {
         for (User item : list) {
             AdminSalesmanRes.AdminSalesman adminSalesman = AdminSalesmanRes.AdminSalesman.builder()
                     .id(item.getId())
+                    .userId(item.getUsername())
+                    .userPw(cryptoUtil.decrypt(item.getPassword()))
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
                     .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
                     .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
                     .commissionRate(Optional.ofNullable(item.getSalesmanProfile()).map(SalesmanProfile::getCommissionRate).orElse(null))
@@ -87,6 +93,9 @@ public class HomeService {
         for (User item : list) {
             AdminEngineerRes.AdminEngineer adminEngineer = AdminEngineerRes.AdminEngineer.builder()
                     .id(item.getId())
+                    .userId(item.getUsername())
+                    .userPw(cryptoUtil.decrypt(item.getPassword()))
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
                     .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
                     .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
                     .address(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getAddress).orElse(null))

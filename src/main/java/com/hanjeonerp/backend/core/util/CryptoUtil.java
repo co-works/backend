@@ -14,7 +14,7 @@ public class CryptoUtil {
     private static final String ALGORITHM = "AES";
 
     @Value("${util.secret}")
-    private String SECRET_KEY; //
+    private String SECRET_KEY;
 
     public String encrypt(String plainText) {
         try {
