@@ -272,9 +272,9 @@ public class CustomerService {
 
         return CheckCompanyNameRes.builder()
                 .possible(false)
-                .salesmanName(salesman.getBasicProfile().getName())
-                .salesmanPhoneNumber(salesman.getBasicProfile().getPhone())
-                .salesmanEmail(salesman.getBasicProfile().getEmail())
+                .salesmanName(salesman!= null ? salesman.getBasicProfile().getName() : null)
+                .salesmanPhoneNumber(salesman!= null ? salesman.getBasicProfile().getPhone() : null)
+                .salesmanEmail(salesman!= null ? salesman.getBasicProfile().getEmail() : null)
                 .build();
     }
 
