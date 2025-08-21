@@ -29,14 +29,14 @@ public class HomeService {
     private final CustomerRepository customerRepository;
 
     public AdminDashboardRes adminDashboard() {
-        Long customerCount = customerRepository.countByIsDelete(false);
+        Long customerCount = customerRepository.count();
         Long salesmanCount = userRepository.countByRoleAndIsDeleted(Role.SALESMAN, false);
         Long engineerCount = userRepository.countByRoleAndIsDeleted(Role.ENGINEER, false);
-        Long inProgressCount = customerRepository.countByProgressStatusAndIsDelete(ProgressStatus.IN_PROGRESS, false);
+        Long inProgressCount = customerRepository.countByProgressStatus(ProgressStatus.IN_PROGRESS);
 
         // 7일 이내 등록되거나 수정된 수용가 조회
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-        List<Customer> list = customerRepository.findByCreatedAtAfterOrUpdatedAtAfterAndIsDelete(sevenDaysAgo, sevenDaysAgo, false);
+        List<Customer> list = customerRepository.findByCreatedAtAfterOrUpdatedAtAfter(sevenDaysAgo, sevenDaysAgo);
 
         // res build
         List<AdminDashboardRes.RecentCustomer> recentCustomerList = new ArrayList<>();
@@ -110,7 +110,7 @@ public class HomeService {
     }
 
     public AdminCustomerRes adminCustomer() {
-        List<Customer> list = customerRepository.findByIsDelete(false);
+        List<Customer> list = customerRepository.findAll();
 
         List<AdminCustomerRes.AdminCustomer> customerList = new ArrayList<>();
         for (Customer item : list) {
@@ -137,7 +137,7 @@ public class HomeService {
         if (role.equals(Role.SALESMAN)) {
             User salesman = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("영업자가 존재하지 않습니다."));
 
-            List<Customer> list = customerRepository.findBySalesmanIdAndIsDelete(salesman, false);
+            List<Customer> list = customerRepository.findBySalesmanId(salesman);
 
             List<UserCustomerRes.UserCustomer> userCustomerList = new ArrayList<>();
             for (Customer item : list) {
@@ -161,7 +161,7 @@ public class HomeService {
         } else if (role.equals(Role.ENGINEER)) { // 담당 기술자
             User engineer = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
 
-            List<Customer> list = customerRepository.findByEngineerIdAndIsDelete(engineer, false);
+            List<Customer> list = customerRepository.findByEngineerId(engineer);
 
             List<UserCustomerRes.UserCustomer> userCustomerList = new ArrayList<>();
             for (Customer item : list) {

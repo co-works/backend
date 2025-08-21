@@ -36,7 +36,7 @@ public class CustomerController {
     }
 
     @PatchMapping("/{customerId}")
-    @Operation(summary = "타당성 검토 의뢰 or 수용가 수정 및 삭제")
+    @Operation(summary = "타당성 검토 의뢰 or 수용가 수정")
     public ApiResponse<UpdateCustomerRes> updateCustomer(@PathVariable Long customerId,
                                                          @RequestBody UpdateCustomerReq req) {
         return ApiResponse.success(customerService.updateCustomer(customerId, req));
