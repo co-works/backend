@@ -40,6 +40,9 @@ public class AdminSalesmanRes {
         @Schema(description = "이메일", example = "")
         private String email;
 
+        @Schema(description = "주소", example = "")
+        private String address;
+
         @Schema(description = "수수료율", example = "")
         private Double commissionRate;
 

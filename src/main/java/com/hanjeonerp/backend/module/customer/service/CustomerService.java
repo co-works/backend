@@ -283,24 +283,6 @@ public class CustomerService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
-
-        // 수용가 삭제일 때
-        if (req.getIsDelete()) {
-            customer.setIsDelete(true);
-
-            // 파일 삭제
-            List<File> savedFileList = fileRepository.findAllByCustomer(customer);
-            for (File item : savedFileList) {
-                // s3 삭제
-                fileService.deleteFile(item.getFileKey());
-            }
-
-            fileRepository.deleteAll(savedFileList);
-
-            return UpdateCustomerRes.builder().build();
-        }
-
-
         // 영업사원 & 엔지니어 조회
         User salesman = null;
         if (req.getSalesmanId() != null) {
@@ -403,7 +385,6 @@ public class CustomerService {
                     .toList();
         }
 
-
         return UpdateCustomerRes.builder()
                 .companyName(customer.getCompanyName())
                 .representative(customer.getRepresentative())
@@ -437,6 +418,25 @@ public class CustomerService {
                 .progressStatus(customer.getProgressStatus())
                 .customerFileList(fileResList)
                 .build();
+    }
+
+    public void deleteCustomer(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
+
+        // 수용가 삭제
+        if (customer != null) {
+            customer.setIsDelete(true);
+
+            // 파일 삭제
+            List<File> savedFileList = fileRepository.findAllByCustomer(customer);
+            for (File item : savedFileList) {
+                // s3 삭제
+                fileService.deleteFile(item.getFileKey());
+            }
+
+            fileRepository.deleteAll(savedFileList);
+        }
     }
 
     public GetCustomerCodeRes getCustomerCode() {
