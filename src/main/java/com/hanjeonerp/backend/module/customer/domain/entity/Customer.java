@@ -88,8 +88,4 @@ public class Customer extends BaseTimeEntity {
     @Column(name = "progress_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProgressStatus progressStatus; //진행 상태
-
-    @Builder.Default
-    @Column(name = "is_delete", nullable = false)
-    private Boolean isDelete = false;
 }

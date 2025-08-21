@@ -258,7 +258,7 @@ public class CustomerService {
     }
 
     public CheckCompanyNameRes checkCompanyName(String companyName) {
-        Customer customer = customerRepository.findByCompanyNameAndIsDelete(companyName, false);
+        Customer customer = customerRepository.findByCompanyName(companyName);
         if (customer == null) {
             return CheckCompanyNameRes.builder()
                     .possible(true)
@@ -426,7 +426,7 @@ public class CustomerService {
 
         // 수용가 삭제
         if (customer != null) {
-            customer.setIsDelete(true);
+            customerRepository.delete(customer);
 
             // 파일 삭제
             List<File> savedFileList = fileRepository.findAllByCustomer(customer);

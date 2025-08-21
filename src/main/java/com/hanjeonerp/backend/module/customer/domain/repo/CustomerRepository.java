@@ -11,21 +11,11 @@ import java.util.List;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Customer findByCompanyName(String companyName);
 
-    Long countByIsDelete(Boolean isDelete);
+    Long countByProgressStatus(ProgressStatus progressStatus);
 
-    Long countByProgressStatusAndIsDelete(ProgressStatus progressStatus, Boolean isDelete);
-
-    List<Customer> findByCreatedAtAfterOrUpdatedAtAfterAndIsDelete(LocalDateTime createdAtAfter, LocalDateTime updatedAtAfter, Boolean isDelete);
-
-    List<Customer> findByIsDelete(Boolean isDelete);
-
-    List<Customer> findBySalesmanIdAndIsDelete(User salesmanId, Boolean isDelete);
+    List<Customer> findByCreatedAtAfterOrUpdatedAtAfter(LocalDateTime createdAtAfter, LocalDateTime updatedAtAfter);
 
     List<Customer> findBySalesmanId(User salesmanId);
 
-    List<Customer> findByEngineerIdAndIsDelete(User engineerId, Boolean isDelete);
-
     List<Customer> findByEngineerId(User engineerId);
-
-    Customer findByCompanyNameAndIsDelete(String companyName, Boolean isDelete);
 }
