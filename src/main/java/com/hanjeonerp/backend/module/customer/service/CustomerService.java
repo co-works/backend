@@ -258,7 +258,7 @@ public class CustomerService {
     }
 
     public CheckCompanyNameRes checkCompanyName(String companyName) {
-        Customer customer = customerRepository.findByCompanyName(companyName);
+        Customer customer = customerRepository.findByCompanyNameAndIsDelete(companyName, false);
         if (customer == null) {
             return CheckCompanyNameRes.builder()
                     .possible(true)

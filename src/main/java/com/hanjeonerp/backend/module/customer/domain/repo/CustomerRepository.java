@@ -26,4 +26,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findByEngineerIdAndIsDelete(User engineerId, Boolean isDelete);
 
     List<Customer> findByEngineerId(User engineerId);
+
+    Customer findByCompanyNameAndIsDelete(String companyName, Boolean isDelete);
 }
