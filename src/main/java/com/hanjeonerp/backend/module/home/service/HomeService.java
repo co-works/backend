@@ -72,6 +72,7 @@ public class HomeService {
                     .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
                     .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
                     .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
+                    .address(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getAddress).orElse(null))
                     .commissionRate(Optional.ofNullable(item.getSalesmanProfile()).map(SalesmanProfile::getCommissionRate).orElse(null))
                     .settlementMethod(Optional.ofNullable(item.getSalesmanProfile()).map(SalesmanProfile::getSettlementMethod).orElse(null))
                     .bankName(Optional.ofNullable(item.getSalesmanProfile()).map(SalesmanProfile::getBankName).orElse(null))

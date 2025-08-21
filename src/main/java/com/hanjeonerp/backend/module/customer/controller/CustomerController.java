@@ -42,6 +42,13 @@ public class CustomerController {
         return ApiResponse.success(customerService.updateCustomer(customerId, req));
     }
 
+    @DeleteMapping("/{customerId}")
+    @Operation(summary = "타당성 검토 의로 or 수용가 삭제")
+    public ApiResponse<Void> deleteCustomer(@PathVariable Long customerId) {
+        customerService.deleteCustomer(customerId);
+        return ApiResponse.success(null);
+    }
+
     @GetMapping("/code")
     @Operation(summary = "수용가에서 사용하는 코드 모음(건물 유형, 진행 상태)")
     public ApiResponse<GetCustomerCodeRes> getCustomerCode() {
