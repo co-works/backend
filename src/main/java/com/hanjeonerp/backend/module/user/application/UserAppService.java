@@ -32,6 +32,10 @@ public class UserAppService {
     // 관리자 등록
     @Transactional
     public AdminRes signUpAdmin(@Valid AdminReq req) {
+
+        if (userRepo.existsByUsername(req.getUsername())) {
+            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+        }
         String rawPassword = req.getPassword();
         String encrypted = cryptoUtil.encrypt(rawPassword);
 
@@ -47,53 +51,57 @@ public class UserAppService {
     // 영업사원 등록
     @Transactional
     public SalesmanRes signUp(SalesmanReq req) {
+
+        if (userRepo.existsByUsername(req.getUsername())) {
+            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+        }
         String rawPassword = req.getPassword();
         String encrypted = cryptoUtil.encrypt(rawPassword);
 
         UserBasicProfile basicProfile = req.toBasicProfile();
         SalesmanProfile profile = req.toSalesmanProfile();
 
-        User user = userService.createSalesman(req.getUsername(), encrypted, basicProfile, profile);
-        userRepo.save(user);
+        User salesMan = userService.createSalesman(req.getUsername(), encrypted, basicProfile, profile);
+        userRepo.save(salesMan);
 
-        return SalesmanRes.from(user, cryptoUtil.decrypt(user.getPassword()));
+        return SalesmanRes.from(salesMan, cryptoUtil.decrypt(salesMan.getPassword()));
     }
 
     // 영업사원 수정
     @Transactional
     public UpdateSalesmanRes updateSalesman(Long userId, UpdateSalesmanReq req) {
-        User user = userRepo.findById(userId)
+        User salesMan = userRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("수정할 유저가 존재하지 않습니다."));
 
-        if (req.getUsername() != null && !req.getUsername().equals(user.getUsername())) {
+        if (req.getUsername() != null && !req.getUsername().equals(salesMan.getUsername())) {
             if (userRepo.existsByUsername(req.getUsername())) {
                 throw new BadRequestException("이미 사용 중인 아이디입니다.");
             }
-            user.changeUsername(req.getUsername());
+            salesMan.changeUsername(req.getUsername());
         }
 
         if (req.getPassword() != null) {
             String encrypted = cryptoUtil.encrypt(req.getPassword());
-            user.changePassword(encrypted);
+            salesMan.changePassword(encrypted);
         }
 
-        UserBasicProfile newBasic = req.toBasicProfile(user.getBasicProfile());
-        SalesmanProfile newSalesman = req.toSalesmanProfile(user.getSalesmanProfile());
-        user.changeSalesmaneProfile(newBasic, newSalesman);
+        UserBasicProfile newBasic = req.toBasicProfile(salesMan.getBasicProfile());
+        SalesmanProfile newSalesman = req.toSalesmanProfile(salesMan.getSalesmanProfile());
+        salesMan.changeSalesmaneProfile(newBasic, newSalesman);
 
-        return UpdateSalesmanRes.from(user, cryptoUtil.decrypt(user.getPassword()));
+        return UpdateSalesmanRes.from(salesMan, cryptoUtil.decrypt(salesMan.getPassword()));
     }
 
     // 영업사원 삭제
     @Transactional
     public void deleteSalesman(Long userId) {
-        User user = userRepo.findById(userId)
+        User salesMan = userRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("삭제할 유저가 존재하지 않습니다."));
-        user.delete();
-        userRepo.save(user);
+        salesMan.delete();
+        userRepo.save(salesMan);
 
         // 유저 삭제 시 수용가에서 null 처리
-        List<Customer> customerList = customerRepository.findBySalesmanId(user);
+        List<Customer> customerList = customerRepository.findBySalesmanId(salesMan);
         if (!customerList.isEmpty()) {
             for (Customer item : customerList) {
                 item.setSalesmanId(null);
@@ -101,13 +109,19 @@ public class UserAppService {
         }
     }
 
-    //  엔지니어 등록
+    //엔지니어 등록
     @Transactional
     public EngineerRes createEngineer(EngineerReq req) {
+
+        if (userRepo.existsByUsername(req.getUsername())) {
+            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+        }
+
         String encrypted = cryptoUtil.encrypt(req.getPassword());
 
         UserBasicProfile engineerProfile = req.toProfile();
         User engineer = userService.createEngineer(req.getUsername(), encrypted, engineerProfile);
+
 
         engineer = userRepo.save(engineer);
 
@@ -118,7 +132,15 @@ public class UserAppService {
     @Transactional
     public UpdateEngineerRes updateEngineer(Long userId, EngineerReq req) {
         User engineer = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("수정할 엔지니어가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException("수정할 엔지니어가 존재하지 않습니다."));
+
+        if (req.getUsername() != null && !req.getUsername().equals(engineer.getUsername())) {
+            if (userRepo.existsByUsername(req.getUsername())) {
+                throw new BadRequestException("이미 사용 중인 아이디입니다.");
+            }
+            engineer.changeUsername(req.getUsername());
+        }
+
 
         if (req.getPassword() != null) {
             String encrypted = cryptoUtil.encrypt(req.getPassword());
