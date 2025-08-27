@@ -1,6 +1,7 @@
 package com.hanjeonerp.backend.module.user.application;
 
 import com.hanjeonerp.backend.core.exception.BadRequestException;
+import com.hanjeonerp.backend.core.exception.ErrorCode;
 import com.hanjeonerp.backend.core.util.CryptoUtil;
 import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
 import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
@@ -34,7 +35,7 @@ public class UserAppService {
     public AdminRes signUpAdmin(@Valid AdminReq req) {
 
         if (userRepo.existsByUsername(req.getUsername())) {
-            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+            throw new BadRequestException(ErrorCode.DUPLICATE_USERNAME);
         }
         String rawPassword = req.getPassword();
         String encrypted = cryptoUtil.encrypt(rawPassword);
@@ -53,7 +54,7 @@ public class UserAppService {
     public SalesmanRes signUp(SalesmanReq req) {
 
         if (userRepo.existsByUsername(req.getUsername())) {
-            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+            throw new BadRequestException(ErrorCode.DUPLICATE_USERNAME);
         }
         String rawPassword = req.getPassword();
         String encrypted = cryptoUtil.encrypt(rawPassword);
@@ -71,11 +72,11 @@ public class UserAppService {
     @Transactional
     public UpdateSalesmanRes updateSalesman(Long userId, UpdateSalesmanReq req) {
         User salesMan = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("수정할 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
         if (req.getUsername() != null && !req.getUsername().equals(salesMan.getUsername())) {
             if (userRepo.existsByUsername(req.getUsername())) {
-                throw new BadRequestException("이미 사용 중인 아이디입니다.");
+                throw new BadRequestException(ErrorCode.DUPLICATE_USERNAME);
             }
             salesMan.changeUsername(req.getUsername());
         }
@@ -114,7 +115,7 @@ public class UserAppService {
     public EngineerRes createEngineer(EngineerReq req) {
 
         if (userRepo.existsByUsername(req.getUsername())) {
-            throw new BadRequestException("이미 사용 중인 아이디입니다.");
+            throw new BadRequestException(ErrorCode.DUPLICATE_USERNAME);
         }
 
         String encrypted = cryptoUtil.encrypt(req.getPassword());
@@ -132,11 +133,11 @@ public class UserAppService {
     @Transactional
     public UpdateEngineerRes updateEngineer(Long userId, EngineerReq req) {
         User engineer = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("수정할 엔지니어가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
         if (req.getUsername() != null && !req.getUsername().equals(engineer.getUsername())) {
             if (userRepo.existsByUsername(req.getUsername())) {
-                throw new BadRequestException("이미 사용 중인 아이디입니다.");
+                throw new BadRequestException(ErrorCode.DUPLICATE_USERNAME);
             }
             engineer.changeUsername(req.getUsername());
         }
@@ -158,7 +159,7 @@ public class UserAppService {
     @Transactional
     public void deleteEngineer(Long userId) {
         User engineer = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("삭제할 엔지니어가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         engineer.delete();
         userRepo.save(engineer);
 
