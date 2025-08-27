@@ -65,6 +65,9 @@ public class GetCustomerRes {
     @Schema(description = "임대차 공장 여부", example = "")
     private boolean isTenantFactory; //임대차 공장 여부
 
+    @Schema(description = "임대차 업체명", example = "")
+    private String renterCompanyName;
+
     @Schema(description = "1월 전기사용량", example = "")
     private Long januaryElectricUsage;
 

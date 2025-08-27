@@ -4,6 +4,7 @@ import com.hanjeonerp.backend.core.common.BaseTimeEntity;
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -58,6 +59,9 @@ public class Customer extends BaseTimeEntity {
 
     @Column(name = "is_tenant_factory", nullable = true)
     private boolean isTenantFactory; //임대차 공장 여부
+
+    @Schema(description = "임대차 업체명", example = "")
+    private String renterCompanyName;
 
     @Column(name = "january_electric_usage", nullable = true)
     private Long januaryElectricUsage; // 1월 전기사용량

@@ -1,5 +1,7 @@
 package com.hanjeonerp.backend.module.file.service;
 
+import com.hanjeonerp.backend.module.file.domain.entity.File;
+import com.hanjeonerp.backend.module.file.domain.repo.FileRepository;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import com.hanjeonerp.backend.module.file.dto.req.GenerateFileUploadUrlReq;
 import com.hanjeonerp.backend.module.file.dto.req.GenerateFileViewUrlReq;
@@ -35,6 +37,8 @@ public class FileService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
+
+    private final FileRepository fileRepository;
 
     // 업로드 URL 생성
     public GenerateFileUploadUrlRes generateFileUploadUrl(GenerateFileUploadUrlReq req) {
@@ -110,8 +114,16 @@ public class FileService {
                 .build();
     }
 
-    // S3 파일 삭제
+    // 파일 삭제
     public String deleteFile(String fileKey) {
+        // * DB 에서 삭제
+        File file = fileRepository.findByFileKey(fileKey);
+        if (file != null) {
+            fileRepository.delete(file);
+        }
+
+        // * S3 에서 삭제
+
         // 1. 삭제 요청 생성
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
