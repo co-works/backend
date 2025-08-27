@@ -1,5 +1,7 @@
 package com.hanjeonerp.backend.module.customer.service;
 
+import com.hanjeonerp.backend.core.exception.BadRequestException;
+import com.hanjeonerp.backend.core.exception.ErrorCode;
 import com.hanjeonerp.backend.core.util.CryptoUtil;
 import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
 import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
@@ -15,7 +17,6 @@ import com.hanjeonerp.backend.module.file.dto.res.GenerateFileViewUrlRes;
 import com.hanjeonerp.backend.module.file.service.FileService;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.repo.UserRepo;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,12 +43,12 @@ public class CustomerService {
         User salesman = null;
 
         if (req.getSalesmanId() != null) {
-            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
+            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         }
 
         User engineer = null;
         if (req.getEngineerId() != null) {
-            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
+            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         }
 
         // 파워 플래너 패스워드 암호화
@@ -177,7 +178,7 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public GetCustomerRes getCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
         if (customer == null) {
             return null;
@@ -281,20 +282,20 @@ public class CustomerService {
     @Transactional
     public UpdateCustomerRes updateCustomer(Long customerId, UpdateCustomerReq req) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.REQUEST_NOT_FOUND));
 
         // 영업사원 & 엔지니어 조회
         User salesman = null;
         if (req.getSalesmanId() != null) {
             salesman = userRepo.findById(req.getSalesmanId())
-                    .orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
+                    .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
             customer.setSalesmanId(salesman);
         }
 
         User engineer = null;
         if (req.getEngineerId() != null) {
             engineer = userRepo.findById(req.getEngineerId())
-                    .orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
+                    .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
             customer.setEngineerId(engineer);
         }
 
@@ -422,7 +423,7 @@ public class CustomerService {
 
     public void deleteCustomer(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.REQUEST_NOT_FOUND));
 
         // 수용가 삭제
         if (customer != null) {

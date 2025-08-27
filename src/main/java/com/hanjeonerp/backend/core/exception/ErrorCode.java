@@ -15,8 +15,12 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode {
 
     // 400 BAD REQUEST
+    BAD_REQUEST(400, "C000", "잘못된 요청입니다."),
     INVALID_INPUT(400, "C001", "입력값이 올바르지 않습니다."),
-    BAD_REQUEST(400, "C002", "잘못된 요청입니다."),
+    DUPLICATE_USERNAME(400, "U001", "이미 존재하는 아이디입니다."),
+    USER_NOT_FOUND(400, "U002", "사용자를 찾을 수 없습니다."),
+    REQUEST_NOT_FOUND(400, "R002", "의뢰서를 찾을 수 없습니다."),
+
 
     // 401 UNAUTHORIZED
     UNAUTHORIZED(401, "A001", "인증이 필요합니다."),
