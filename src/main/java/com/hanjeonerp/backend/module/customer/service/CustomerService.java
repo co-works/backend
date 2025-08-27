@@ -72,6 +72,7 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoPowerPlannerPassword)
                 .buildingType(req.getBuildingType())
                 .isTenantFactory(req.isTenantFactory())
+                .renterCompanyName(req.getRenterCompanyName())
                 .januaryElectricUsage(req.getJanuaryElectricUsage())
                 .augustElectricUsage(req.getAugustElectricUsage())
                 .salesmanId(salesman)
@@ -154,6 +155,7 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword())) // 복호화해서 전달
                 .buildingType(customer.getBuildingType())
                 .isTenantFactory(customer.isTenantFactory())
+                .renterCompanyName(customer.getRenterCompanyName())
                 .januaryElectricUsage(customer.getJanuaryElectricUsage())
                 .augustElectricUsage(customer.getAugustElectricUsage())
                 .salesmanId(salesman != null ? salesman.getId() : null)
@@ -237,6 +239,7 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword()))
                 .buildingType(customer.getBuildingType())
                 .isTenantFactory(customer.isTenantFactory())
+                .renterCompanyName(customer.getRenterCompanyName())
                 .januaryElectricUsage(customer.getJanuaryElectricUsage())
                 .augustElectricUsage(customer.getAugustElectricUsage())
                 .salesmanId(salesman != null ? salesman.getId() : null)
@@ -315,6 +318,7 @@ public class CustomerService {
         }
         if (req.getBuildingType() != null) customer.setBuildingType(req.getBuildingType());
         if (req.getIsTenantFactory() != null) customer.setTenantFactory(req.getIsTenantFactory());
+        if (req.getRenterCompanyName() != null) customer.setRenterCompanyName(req.getRenterCompanyName());
         if (req.getJanuaryElectricUsage() != null) customer.setJanuaryElectricUsage(req.getJanuaryElectricUsage());
         if (req.getAugustElectricUsage() != null) customer.setAugustElectricUsage(req.getAugustElectricUsage());
         if (req.getProjectCost() != null) customer.setProjectCost(req.getProjectCost());
@@ -400,6 +404,7 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword()))
                 .buildingType(customer.getBuildingType())
                 .isTenantFactory(customer.isTenantFactory())
+                .renterCompanyName(customer.getRenterCompanyName())
                 .januaryElectricUsage(customer.getJanuaryElectricUsage())
                 .augustElectricUsage(customer.getAugustElectricUsage())
                 .salesmanId(salesman != null ? salesman.getId() : null)
@@ -431,11 +436,9 @@ public class CustomerService {
             // 파일 삭제
             List<File> savedFileList = fileRepository.findAllByCustomer(customer);
             for (File item : savedFileList) {
-                // s3 삭제
+                // db, s3 삭제
                 fileService.deleteFile(item.getFileKey());
             }
-
-            fileRepository.deleteAll(savedFileList);
         }
     }
 

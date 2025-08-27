@@ -33,7 +33,7 @@ public class FileController {
     }
 
     @DeleteMapping
-    @Operation(summary = "s3에서 파일 삭제(사용자가 저장전에 첨부파일 제거 시 사용)")
+    @Operation(summary = "파일 삭제(저장된 파일 삭제 or 사용자가 저장전에 첨부파일 제거 시 사용)")
     public ApiResponse<String> deleteFile(@RequestParam String fileKey) {
         return ApiResponse.success(fileService.deleteFile(fileKey));
     }
