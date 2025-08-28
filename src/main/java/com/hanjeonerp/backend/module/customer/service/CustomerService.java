@@ -296,6 +296,7 @@ public class CustomerService {
             // db 저장
             List<File> newFile = req.getNewAttachmentFileList().stream()
                     .map(f -> File.builder()
+                            .customer(customer)
                             .fileKey(f.getFileKey())
                             .category(f.getCategory())
                             .originalFileName(f.getOriginalFileName())
