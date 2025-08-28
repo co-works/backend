@@ -6,10 +6,7 @@ import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,14 +62,26 @@ public class GetCustomerRes {
     @Schema(description = "임대차 공장 여부", example = "")
     private boolean isTenantFactory; //임대차 공장 여부
 
-    @Schema(description = "임대차 업체명", example = "")
-    private String renterCompanyName;
+    @Schema(description = "임대차 업체 리스트", example = "")
+    private List<TenantCompany> tenantCompanyList;
 
-    @Schema(description = "1월 전기사용량", example = "")
-    private Long januaryElectricUsage;
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    public static class TenantCompany {
+        @Schema(description = "임대차 업체 id", example = "10")
+        private Long customerTenantCompanyId;
 
-    @Schema(description = "8월 전기사용량", example = "")
-    private Long augustElectricUsage;
+        @Schema(description = "임대차 업체명", example = "하이회사")
+        private String tenantCompanyName;
+
+        @Schema(description = "1월 전기사용량", example = "50")
+        private Long januaryElectricUsage;
+
+        @Schema(description = "8월 전기사용량", example = "500")
+        private Long augustElectricUsage;
+    }
 
     @Schema(description = "영업 담당자 ID", example = "5")
     private Long salesmanId; //영업 담당자 ID

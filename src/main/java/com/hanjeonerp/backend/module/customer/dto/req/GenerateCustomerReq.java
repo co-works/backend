@@ -1,5 +1,6 @@
 package com.hanjeonerp.backend.module.customer.dto.req;
 
+import com.hanjeonerp.backend.module.customer.domain.entity.CustomerTenantCompany;
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
@@ -61,14 +62,23 @@ public class GenerateCustomerReq {
     @Schema(description = "임대차 공장 여부", example = "")
     private boolean isTenantFactory; //임대차 공장 여부
 
-    @Schema(description = "임대차 업체명", example = "")
-    private String renterCompanyName;
+    @Schema(description = "임대차 업체 리스트", example = "")
+    private List<TenantCompany> tenantCompanyList;
 
-    @Schema(description = "1월 전기사용량", example = "")
-    private Long januaryElectricUsage;
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    public static class TenantCompany {
+        @Schema(description = "임대차 업체명", example = "하이회사")
+        private String tenantCompanyName;
 
-    @Schema(description = "8월 전기사용량", example = "")
-    private Long augustElectricUsage;
+        @Schema(description = "1월 전기사용량", example = "50")
+        private Long januaryElectricUsage;
+
+        @Schema(description = "8월 전기사용량", example = "500")
+        private Long augustElectricUsage;
+    }
 
     @Schema(description = "영업 담당자 ID", example = "5")
     private Long salesmanId; //영업 담당자 ID

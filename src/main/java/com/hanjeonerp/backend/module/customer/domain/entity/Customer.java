@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 public class Customer extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = true)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     //고객사 정보
@@ -59,15 +59,6 @@ public class Customer extends BaseTimeEntity {
 
     @Column(name = "is_tenant_factory", nullable = true)
     private boolean isTenantFactory; //임대차 공장 여부
-
-    @Schema(description = "임대차 업체명", example = "")
-    private String renterCompanyName;
-
-    @Column(name = "january_electric_usage", nullable = true)
-    private Long januaryElectricUsage; // 1월 전기사용량
-
-    @Column(name = "august_electric_usage", nullable = true)
-    private Long augustElectricUsage; // 8월 전기사용량
 
     @ManyToOne(fetch = FetchType.LAZY) // 지연로딩 N+1 방지
     @JoinColumn(name = "salesman_id", nullable = true)

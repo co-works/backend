@@ -123,7 +123,6 @@ public class FileService {
         }
 
         // * S3 에서 삭제
-
         // 1. 삭제 요청 생성
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)

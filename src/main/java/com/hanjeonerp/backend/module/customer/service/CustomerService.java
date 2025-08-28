@@ -1,14 +1,15 @@
 package com.hanjeonerp.backend.module.customer.service;
 
-import com.hanjeonerp.backend.core.exception.BadRequestException;
-import com.hanjeonerp.backend.core.exception.ErrorCode;
 import com.hanjeonerp.backend.core.util.CryptoUtil;
 import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
+import com.hanjeonerp.backend.module.customer.domain.entity.CustomerTenantCompany;
 import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
+import com.hanjeonerp.backend.module.customer.domain.repo.CustomerTenantCompanyRepository;
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
 import com.hanjeonerp.backend.module.customer.dto.req.GenerateCustomerReq;
 import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerReq;
+import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerTenantCompanyReq;
 import com.hanjeonerp.backend.module.customer.dto.res.*;
 import com.hanjeonerp.backend.module.file.domain.entity.File;
 import com.hanjeonerp.backend.module.file.domain.repo.FileRepository;
@@ -17,6 +18,7 @@ import com.hanjeonerp.backend.module.file.dto.res.GenerateFileViewUrlRes;
 import com.hanjeonerp.backend.module.file.service.FileService;
 import com.hanjeonerp.backend.module.user.domain.entity.User;
 import com.hanjeonerp.backend.module.user.domain.repo.UserRepo;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,22 +35,23 @@ public class CustomerService {
     private final CryptoUtil cryptoUtil;
 
     private final CustomerRepository customerRepository;
+    private final CustomerTenantCompanyRepository customerTenantCompanyRepository;
     private final FileRepository fileRepository;
     private final UserRepo userRepo;
 
     private final FileService fileService;
 
     @Transactional
-    public GenerateCustomerRes generateCustomer(GenerateCustomerReq req) {
+    public GetCustomerRes generateCustomer(GenerateCustomerReq req) {
         User salesman = null;
 
         if (req.getSalesmanId() != null) {
-            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
         }
 
         User engineer = null;
         if (req.getEngineerId() != null) {
-            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
         }
 
         // 파워 플래너 패스워드 암호화
@@ -73,9 +76,6 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoPowerPlannerPassword)
                 .buildingType(req.getBuildingType())
                 .isTenantFactory(req.isTenantFactory())
-                .renterCompanyName(req.getRenterCompanyName())
-                .januaryElectricUsage(req.getJanuaryElectricUsage())
-                .augustElectricUsage(req.getAugustElectricUsage())
                 .salesmanId(salesman)
                 .engineerId(engineer)
                 .projectCost(req.getProjectCost())
@@ -85,6 +85,19 @@ public class CustomerService {
                 .progressStatus(req.getProgressStatus())
                 .build();
         customerRepository.save(customer);
+
+        // 임대차 업체 저장
+        if (!req.getTenantCompanyList().isEmpty()) {
+            for (GenerateCustomerReq.TenantCompany item : req.getTenantCompanyList()) {
+                CustomerTenantCompany tenantCompany = CustomerTenantCompany.builder()
+                        .customer(customer)
+                        .tenantCompanyName(item.getTenantCompanyName())
+                        .januaryElectricUsage(item.getJanuaryElectricUsage())
+                        .augustElectricUsage(item.getAugustElectricUsage())
+                        .build();
+                customerTenantCompanyRepository.save(tenantCompany);
+            }
+        }
 
         // 파일 저장
         List<GenerateCustomerReq.AttachmentFile> fileList = req.getAttachmentFileList();
@@ -103,84 +116,12 @@ public class CustomerService {
             }
         }
 
-        // 저장된 파일 조회
-        List<File> savedFileList = fileRepository.findAllByCustomer(customer);
-        // presigned URL 포함된 파일 응답 DTO 리스트 생성
-        List<GenerateCustomerRes.CustomerFile> fileResList = new ArrayList<>();
-        if (!savedFileList.isEmpty()) {
-            // 1. ViewUrlReq 리스트 생성
-            List<GenerateFileViewUrlReq.ViewUrlReq> viewUrlReqList = savedFileList.stream()
-                    .map(file -> new GenerateFileViewUrlReq.ViewUrlReq(file.getId(), file.getFileKey()))
-                    .toList();
-
-            // 2. S3 조회용 URL 한 번에 요청
-            GenerateFileViewUrlReq viewUrlReq = new GenerateFileViewUrlReq(viewUrlReqList);
-            List<GenerateFileViewUrlRes.ViewUrlRes> viewUrlResList = fileService.generateFileViewURL(viewUrlReq).getViewUrlResList();
-
-            // 3. fileId → fileUrl 매핑용 Map 생성
-            Map<Long, String> fileUrlMap = viewUrlResList.stream()
-                    .collect(Collectors.toMap(
-                            GenerateFileViewUrlRes.ViewUrlRes::getFileId,
-                            GenerateFileViewUrlRes.ViewUrlRes::getFileUrl
-                    ));
-
-            // 4. 최종 응답용 CustomerFile 리스트 생성
-            fileResList = savedFileList.stream()
-                    .map(file -> GenerateCustomerRes.CustomerFile.builder()
-                            .fileId(file.getId())
-                            .fileKey(file.getFileKey())
-                            .category(file.getCategory())
-                            .originalFileName(file.getOriginalFileName())
-                            .extension(file.getExtension())
-                            .contentType(file.getContentType())
-                            .size(file.getSize())
-                            .fileUrl(fileUrlMap.get(file.getId()))
-                            .build())
-                    .toList();
-        }
-
-        /**
-         * engineer 값 변경 필요
-         **/
-        return GenerateCustomerRes.builder()
-                .companyName(customer.getCompanyName())
-                .representative(customer.getRepresentative())
-                .businessNumber(customer.getBusinessNumber())
-                .businessType(customer.getBusinessType())
-                .businessItem(customer.getBusinessItem())
-                .businessAddress(customer.getBusinessAddress())
-                .managerName(customer.getManagerName())
-                .companyPhone(customer.getCompanyPhone())
-                .email(customer.getEmail())
-                .powerPlannerId(customer.getPowerPlannerId())
-                .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword())) // 복호화해서 전달
-                .buildingType(customer.getBuildingType())
-                .isTenantFactory(customer.isTenantFactory())
-                .renterCompanyName(customer.getRenterCompanyName())
-                .januaryElectricUsage(customer.getJanuaryElectricUsage())
-                .augustElectricUsage(customer.getAugustElectricUsage())
-                .salesmanId(salesman != null ? salesman.getId() : null)
-                .salesmanName(salesman != null ? salesman.getUsername() : null)
-                .salesmanCommissionRate(salesman != null ? salesman.getSalesmanProfile().getCommissionRate() : null)
-                .salesmanPhoneNumber(salesman != null ? salesman.getBasicProfile().getPhone() : null)
-                .salesmanEmail(salesman != null ? salesman.getBasicProfile().getEmail() : null)
-                .engineerId(engineer != null ? engineer.getId() : null)
-                .engineerName(engineer != null ? engineer.getUsername() : null)
-                .engineerPhoneNumber(engineer != null ? engineer.getBasicProfile().getPhone() : null)
-                .engineerEmail(engineer != null ? engineer.getBasicProfile().getEmail() : null)
-                .engineerAddress(engineer != null ? engineer.getBasicProfile().getAddress() : null)
-                .projectCost(customer.getProjectCost())
-                .electricitySavingRate(customer.getElectricitySavingRate())
-                .subsidy(customer.getSubsidy())
-                .projectPeriod(customer.getProjectPeriod())
-                .progressStatus(customer.getProgressStatus())
-                .customerFileList(fileResList)
-                .build();
+        return getCustomer(customer.getId());
     }
 
     @Transactional(readOnly = true)
     public GetCustomerRes getCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
         if (customer == null) {
             return null;
@@ -188,6 +129,20 @@ public class CustomerService {
 
         User salesman = customer.getSalesmanId();
         User engineer = customer.getEngineerId();
+
+        // 임대차 업체 조회
+        List<CustomerTenantCompany> tenantCompanyList = customerTenantCompanyRepository.findByCustomer(customer);
+        List<GetCustomerRes.TenantCompany> tenantCompanyResList = new ArrayList<>();
+        if (!tenantCompanyList.isEmpty()) {
+            tenantCompanyResList = tenantCompanyList.stream()
+                    .map(tenantCompany -> GetCustomerRes.TenantCompany.builder()
+                            .customerTenantCompanyId(tenantCompany.getId())
+                            .tenantCompanyName(tenantCompany.getTenantCompanyName())
+                            .januaryElectricUsage(tenantCompany.getJanuaryElectricUsage())
+                            .augustElectricUsage(tenantCompany.getAugustElectricUsage())
+                            .build())
+                    .toList();
+        }
 
         // 파일 조회
         List<File> savedFileList = fileRepository.findAllByCustomer(customer);
@@ -222,9 +177,6 @@ public class CustomerService {
                     .toList();
         }
 
-        /**
-         * engineer 값 변경 필요
-         **/
         return GetCustomerRes.builder()
                 .companyName(customer.getCompanyName())
                 .representative(customer.getRepresentative())
@@ -240,9 +192,7 @@ public class CustomerService {
                 .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword()))
                 .buildingType(customer.getBuildingType())
                 .isTenantFactory(customer.isTenantFactory())
-                .renterCompanyName(customer.getRenterCompanyName())
-                .januaryElectricUsage(customer.getJanuaryElectricUsage())
-                .augustElectricUsage(customer.getAugustElectricUsage())
+                .tenantCompanyList(tenantCompanyResList)
                 .salesmanId(salesman != null ? salesman.getId() : null)
                 .salesmanName(salesman != null ? salesman.getUsername() : null)
                 .salesmanCommissionRate(salesman != null ? salesman.getSalesmanProfile().getCommissionRate() : null)
@@ -261,6 +211,7 @@ public class CustomerService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public CheckCompanyNameRes checkCompanyName(String companyName) {
         Customer customer = customerRepository.findByCompanyName(companyName);
         if (customer == null) {
@@ -283,22 +234,19 @@ public class CustomerService {
     }
 
     @Transactional
-    public UpdateCustomerRes updateCustomer(Long customerId, UpdateCustomerReq req) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.REQUEST_NOT_FOUND));
+    public GetCustomerRes updateCustomer(Long customerId, UpdateCustomerReq req) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
         // 영업사원 & 엔지니어 조회
         User salesman = null;
         if (req.getSalesmanId() != null) {
-            salesman = userRepo.findById(req.getSalesmanId())
-                    .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+            salesman = userRepo.findById(req.getSalesmanId()).orElseThrow(() -> new EntityNotFoundException("영업사원이 존재하지 않습니다."));
             customer.setSalesmanId(salesman);
         }
 
         User engineer = null;
         if (req.getEngineerId() != null) {
-            engineer = userRepo.findById(req.getEngineerId())
-                    .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+            engineer = userRepo.findById(req.getEngineerId()).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
             customer.setEngineerId(engineer);
         }
 
@@ -319,16 +267,31 @@ public class CustomerService {
         }
         if (req.getBuildingType() != null) customer.setBuildingType(req.getBuildingType());
         if (req.getIsTenantFactory() != null) customer.setTenantFactory(req.getIsTenantFactory());
-        if (req.getRenterCompanyName() != null) customer.setRenterCompanyName(req.getRenterCompanyName());
-        if (req.getJanuaryElectricUsage() != null) customer.setJanuaryElectricUsage(req.getJanuaryElectricUsage());
-        if (req.getAugustElectricUsage() != null) customer.setAugustElectricUsage(req.getAugustElectricUsage());
         if (req.getProjectCost() != null) customer.setProjectCost(req.getProjectCost());
         if (req.getElectricitySavingRate() != null) customer.setElectricitySavingRate(req.getElectricitySavingRate());
         if (req.getSubsidy() != null) customer.setSubsidy(req.getSubsidy());
         if (req.getProjectPeriod() != null) customer.setProjectPeriod(req.getProjectPeriod());
         if (req.getProgressStatus() != null) customer.setProgressStatus(req.getProgressStatus());
 
+        // 신규 임대차 공장 저장
+        if (!req.getNewTenantCompanyList().isEmpty()) {
+            List<CustomerTenantCompany> newTenantCompany = req.getNewTenantCompanyList().stream()
+                    .map(t -> CustomerTenantCompany.builder()
+                            .customer(customer)
+                            .tenantCompanyName(t.getTenantCompanyName())
+                            .januaryElectricUsage(t.getJanuaryElectricUsage())
+                            .augustElectricUsage(t.getAugustElectricUsage())
+                            .build()).toList();
+            customerTenantCompanyRepository.saveAll(newTenantCompany);
+        }
 
+        // 기존 임대차 공장 삭제
+        if (!req.getDeleteTenantCompanyList().isEmpty()) {
+            List<CustomerTenantCompany> tenantCompanyList = customerTenantCompanyRepository.findAllById(req.getDeleteTenantCompanyList());
+            customerTenantCompanyRepository.deleteAll(tenantCompanyList);
+        }
+
+        // 신규 파일 저장
         if (!req.getNewAttachmentFileList().isEmpty()) {
             // db 저장
             List<File> newFile = req.getNewAttachmentFileList().stream()
@@ -343,96 +306,27 @@ public class CustomerService {
             fileRepository.saveAll(newFile);
         }
 
+        // 기존 파일 삭제
         if (!req.getDeleteAttachmentFileList().isEmpty()) {
             List<File> fileList = fileRepository.findAllById(req.getDeleteAttachmentFileList());
-            // S3 삭제처리
+            // DB, S3 삭제처리
             for (File file : fileList) {
                 fileService.deleteFile(file.getFileKey());
             }
-
-            // DB 삭제처리
-            fileRepository.deleteAll(fileList);
         }
 
-        // 저장된 파일 조회
-        List<File> savedFileList = fileRepository.findAllByCustomer(customer);
-        // presigned URL 포함된 파일 응답 DTO 리스트 생성
-        List<UpdateCustomerRes.CustomerFile> fileResList = new ArrayList<>();
-        if (!savedFileList.isEmpty()) {
-            // 1. ViewUrlReq 리스트 생성
-            List<GenerateFileViewUrlReq.ViewUrlReq> viewUrlReqList = savedFileList.stream()
-                    .map(file -> new GenerateFileViewUrlReq.ViewUrlReq(file.getId(), file.getFileKey()))
-                    .toList();
-
-            // 2. S3 조회용 URL 한 번에 요청
-            GenerateFileViewUrlReq viewUrlReq = new GenerateFileViewUrlReq(viewUrlReqList);
-            List<GenerateFileViewUrlRes.ViewUrlRes> viewUrlResList = fileService.generateFileViewURL(viewUrlReq).getViewUrlResList();
-
-            // 3. fileId → fileUrl 매핑용 Map 생성
-            Map<Long, String> fileUrlMap = viewUrlResList.stream()
-                    .collect(Collectors.toMap(
-                            GenerateFileViewUrlRes.ViewUrlRes::getFileId,
-                            GenerateFileViewUrlRes.ViewUrlRes::getFileUrl
-                    ));
-
-            // 4. 최종 응답용 CustomerFile 리스트 생성
-            fileResList = savedFileList.stream()
-                    .map(file -> UpdateCustomerRes.CustomerFile.builder()
-                            .fileId(file.getId())
-                            .fileKey(file.getFileKey())
-                            .category(file.getCategory())
-                            .originalFileName(file.getOriginalFileName())
-                            .extension(file.getExtension())
-                            .contentType(file.getContentType())
-                            .size(file.getSize())
-                            .fileUrl(fileUrlMap.get(file.getId()))
-                            .build())
-                    .toList();
-        }
-
-        return UpdateCustomerRes.builder()
-                .companyName(customer.getCompanyName())
-                .representative(customer.getRepresentative())
-                .businessNumber(customer.getBusinessNumber())
-                .businessType(customer.getBusinessType())
-                .businessItem(customer.getBusinessItem())
-                .businessAddress(customer.getBusinessAddress())
-                .managerName(customer.getManagerName())
-                .companyPhone(customer.getCompanyPhone())
-                .email(customer.getEmail())
-                .phoneNumber(customer.getPhoneNumber())
-                .powerPlannerId(customer.getPowerPlannerId())
-                .powerPlannerPassword(cryptoUtil.decrypt(customer.getPowerPlannerPassword()))
-                .buildingType(customer.getBuildingType())
-                .isTenantFactory(customer.isTenantFactory())
-                .renterCompanyName(customer.getRenterCompanyName())
-                .januaryElectricUsage(customer.getJanuaryElectricUsage())
-                .augustElectricUsage(customer.getAugustElectricUsage())
-                .salesmanId(salesman != null ? salesman.getId() : null)
-                .salesmanName(salesman != null ? salesman.getUsername() : null)
-                .salesmanCommissionRate(salesman != null ? salesman.getSalesmanProfile().getCommissionRate() : null)
-                .salesmanPhoneNumber(salesman != null ? salesman.getBasicProfile().getPhone() : null)
-                .salesmanEmail(salesman != null ? salesman.getBasicProfile().getEmail() : null)
-                .engineerId(engineer != null ? engineer.getId() : null)
-                .engineerName(engineer != null ? engineer.getUsername() : null)
-                .engineerPhoneNumber(engineer != null ? engineer.getBasicProfile().getPhone() : null)
-                .engineerEmail(engineer != null ? engineer.getBasicProfile().getEmail() : null)
-                .projectCost(customer.getProjectCost())
-                .electricitySavingRate(customer.getElectricitySavingRate())
-                .subsidy(customer.getSubsidy())
-                .projectPeriod(customer.getProjectPeriod())
-                .progressStatus(customer.getProgressStatus())
-                .customerFileList(fileResList)
-                .build();
+        return getCustomer(customerId);
     }
 
+    @Transactional
     public void deleteCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.REQUEST_NOT_FOUND));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("의뢰서가 존재하지 않습니다."));
 
         // 수용가 삭제
         if (customer != null) {
-            customerRepository.delete(customer);
+            // 임대차 업체 삭제
+            List<CustomerTenantCompany> savedTenantCompany = customerTenantCompanyRepository.findAllByCustomer(customer);
+            customerTenantCompanyRepository.deleteAll(savedTenantCompany);
 
             // 파일 삭제
             List<File> savedFileList = fileRepository.findAllByCustomer(customer);
@@ -440,7 +334,25 @@ public class CustomerService {
                 // db, s3 삭제
                 fileService.deleteFile(item.getFileKey());
             }
+
+            customerRepository.delete(customer);
         }
+    }
+
+    @Transactional
+    public void updateCustomerTenantCompany(Long tenantCompanyId, UpdateCustomerTenantCompanyReq req) {
+        CustomerTenantCompany tenantCompany = customerTenantCompanyRepository.findById(tenantCompanyId).orElseThrow(() -> new EntityNotFoundException("임대차 업체가 존재하지 않습니다."));
+
+        if (req.getTenantCompanyName() != null) tenantCompany.setTenantCompanyName(req.getTenantCompanyName());
+        if (req.getJanuaryElectricUsage() != null) tenantCompany.setJanuaryElectricUsage(req.getJanuaryElectricUsage());
+        if (req.getAugustElectricUsage() != null) tenantCompany.setAugustElectricUsage(req.getAugustElectricUsage());
+    }
+
+    @Transactional
+    public void deleteCustomerTenantCompany(Long tenantCompanyId) {
+        CustomerTenantCompany tenantCompany = customerTenantCompanyRepository.findById(tenantCompanyId).orElseThrow(() -> new EntityNotFoundException("임대차 업체가 존재하지 않습니다."));
+
+        customerTenantCompanyRepository.delete(tenantCompany);
     }
 
     public GetCustomerCodeRes getCustomerCode() {

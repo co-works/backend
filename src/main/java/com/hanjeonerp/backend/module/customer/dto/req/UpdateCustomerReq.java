@@ -2,7 +2,6 @@ package com.hanjeonerp.backend.module.customer.dto.req;
 
 import com.hanjeonerp.backend.module.customer.domain.vo.BuildingType;
 import com.hanjeonerp.backend.module.customer.domain.vo.ProgressStatus;
-import com.hanjeonerp.backend.module.file.domain.entity.File;
 import com.hanjeonerp.backend.module.file.domain.vo.FileCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -62,14 +61,26 @@ public class UpdateCustomerReq {
     @Schema(description = "임대차 공장 여부", example = "")
     private Boolean isTenantFactory; //임대차 공장 여부
 
-    @Schema(description = "임대차 업체명", example = "")
-    private String renterCompanyName;
+    @Schema(description = "새로운 임대차 공장 리스트", example = "")
+    private List<NewTenantCompany> newTenantCompanyList;
 
-    @Schema(description = "1월 전기사용량", example = "")
-    private Long januaryElectricUsage;
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    public static class NewTenantCompany {
+        @Schema(description = "임대차 업체명", example = "하이회사")
+        private String tenantCompanyName;
 
-    @Schema(description = "8월 전기사용량", example = "")
-    private Long augustElectricUsage;
+        @Schema(description = "1월 전기사용량", example = "50")
+        private Long januaryElectricUsage;
+
+        @Schema(description = "8월 전기사용량", example = "500")
+        private Long augustElectricUsage;
+    }
+
+    @Schema(description = "삭제 임대차 공장 리스트(tenantCompanyId)", example = "")
+    private List<Long> deleteTenantCompanyList;
 
     @Schema(description = "영업 담당자 ID", example = "5")
     private Long salesmanId; //영업 담당자 ID
@@ -96,7 +107,7 @@ public class UpdateCustomerReq {
     private Boolean isDelete;
 
     @Schema(description = "새로운 첨부파일 리스트", example = "")
-    List<NewAttachmentFile> newAttachmentFileList;
+    private List<NewAttachmentFile> newAttachmentFileList;
 
     @Getter
     @Setter
@@ -123,5 +134,5 @@ public class UpdateCustomerReq {
     }
 
     @Schema(description = "삭제 첨부파일 리스트(fileId)", example = "")
-    List<Long> deleteAttachmentFileList;
+    private List<Long> deleteAttachmentFileList;
 }
