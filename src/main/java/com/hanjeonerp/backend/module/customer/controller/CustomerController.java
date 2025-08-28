@@ -3,6 +3,7 @@ package com.hanjeonerp.backend.module.customer.controller;
 import com.hanjeonerp.backend.core.common.ApiResponse;
 import com.hanjeonerp.backend.module.customer.dto.req.GenerateCustomerReq;
 import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerReq;
+import com.hanjeonerp.backend.module.customer.dto.req.UpdateCustomerTenantCompanyReq;
 import com.hanjeonerp.backend.module.customer.dto.res.*;
 import com.hanjeonerp.backend.module.customer.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ public class CustomerController {
 
     @PostMapping
     @Operation(summary = "타당성 검토 의뢰 or 수용가 추가(고객,업체 사용)")
-    public ApiResponse<GenerateCustomerRes> generateCustomer(@RequestBody GenerateCustomerReq req) {
+    public ApiResponse<GetCustomerRes> generateCustomer(@RequestBody GenerateCustomerReq req) {
         return ApiResponse.success(customerService.generateCustomer(req));
     }
 
@@ -37,15 +38,29 @@ public class CustomerController {
 
     @PatchMapping("/{customerId}")
     @Operation(summary = "타당성 검토 의뢰 or 수용가 수정")
-    public ApiResponse<UpdateCustomerRes> updateCustomer(@PathVariable Long customerId,
+    public ApiResponse<GetCustomerRes> updateCustomer(@PathVariable Long customerId,
                                                          @RequestBody UpdateCustomerReq req) {
         return ApiResponse.success(customerService.updateCustomer(customerId, req));
     }
 
     @DeleteMapping("/{customerId}")
-    @Operation(summary = "타당성 검토 의로 or 수용가 삭제")
+    @Operation(summary = "타당성 검토 의뢰 or 수용가 삭제")
     public ApiResponse<Void> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
+        return ApiResponse.success(null);
+    }
+
+    @PatchMapping("/tenantCompany/{tenantCompanyId}")
+    @Operation(summary = "기존 임대차 업체 수정")
+    public ApiResponse<Void> updateCustomerTenantCompany(@PathVariable Long tenantCompanyId, @RequestBody UpdateCustomerTenantCompanyReq req) {
+        customerService.updateCustomerTenantCompany(tenantCompanyId, req);
+        return ApiResponse.success(null);
+    }
+
+    @DeleteMapping("/tenantCompany/{tenantCompanyId}")
+    @Operation(summary = "기존 임대차 업체 삭제")
+    public ApiResponse<Void> deleteCustomerTenantCompany(@PathVariable Long tenantCompanyId) {
+        customerService.deleteCustomerTenantCompany(tenantCompanyId);
         return ApiResponse.success(null);
     }
 
