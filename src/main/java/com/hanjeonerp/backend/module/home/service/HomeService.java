@@ -1,5 +1,7 @@
 package com.hanjeonerp.backend.module.home.service;
 
+import com.hanjeonerp.backend.core.exception.BadRequestException;
+import com.hanjeonerp.backend.core.exception.ErrorCode;
 import com.hanjeonerp.backend.core.util.CryptoUtil;
 import com.hanjeonerp.backend.module.customer.domain.entity.Customer;
 import com.hanjeonerp.backend.module.customer.domain.repo.CustomerRepository;
@@ -159,7 +161,7 @@ public class HomeService {
                     .customerList(userCustomerList)
                     .build();
         } else if (role.equals(Role.ENGINEER)) { // 담당 기술자
-            User engineer = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("기술자가 존재하지 않습니다."));
+            User engineer = userRepository.findById(userId).orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
             List<Customer> list = customerRepository.findByEngineerId(engineer);
 
