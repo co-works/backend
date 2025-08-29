@@ -125,6 +125,7 @@ public class HomeService {
                     .engineerName(item.getEngineerId() != null ? item.getEngineerId().getBasicProfile().getName() : null)
                     .companyEmail(item.getEmail())
                     .companyPhone(item.getCompanyPhone())
+                    .progressStatus(item.getProgressStatus())
                     .build();
             customerList.add(adminCustomer);
         }
