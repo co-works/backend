@@ -45,7 +45,8 @@ public class SecurityConfig {
             "http://127.0.0.1:3000",
             "http://localhost:5173",
             "https://kepco-management.vercel.app",
-            "https://v0-kepco-landing-page-git-main-kk3junes-projects.vercel.app/"
+            "https://v0-kepco-landing-page-git-main-kk3junes-projects.vercel.app/",
+            "https://v0-kepco-landing-page.vercel.app/"
 
     );
 
