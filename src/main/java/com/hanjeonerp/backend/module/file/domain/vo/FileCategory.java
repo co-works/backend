@@ -16,7 +16,9 @@ public enum FileCategory {
     CONTRACT("계약서"),
     SAVINGS_PROOF("전기요금 절감 확인서"),
     INSURANCE("보증 보험 증권"),
-    KEPCO_APPLICATION("한전 대관 신청서");
+    KEPCO_APPLICATION("한전 대관 신청서"),
+    ETC("기타"); //25.10.31 기타 파일 카테고리 추가(최대 5개)
+
 
     private final String label; // 파일 카테고리 설명
 
