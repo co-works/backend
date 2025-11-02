@@ -191,4 +191,45 @@ public class HomeService {
                     .build();
         }
     }
+
+    public LimitUserListRes limitUserList() {
+        List<User> salesmanList = userRepository.findByRoleAndIsDeleted(Role.SALESMAN, false);
+        List<User> engineerList = userRepository.findByRoleAndIsDeleted(Role.ENGINEER, false);
+
+        List<LimitUserListRes.LimitSalesman>  limitSalesmanList = new ArrayList<>();
+        List<LimitUserListRes.LimitEngineer>  limitEngineerList = new ArrayList<>();
+
+
+        // salesman
+        for (User item : salesmanList) {
+            LimitUserListRes.LimitSalesman limitSalesman = LimitUserListRes.LimitSalesman.builder()
+                    .id(item.getId())
+                    .userId(item.getUsername())
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
+                    .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
+                    .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
+                    .address(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getAddress).orElse(null))
+                    .build();
+            limitSalesmanList.add(limitSalesman);
+        }
+
+        //engineer
+        for (User item : engineerList) {
+            LimitUserListRes.LimitEngineer limitEngineer = LimitUserListRes.LimitEngineer.builder()
+                    .id(item.getId())
+                    .userId(item.getUsername())
+                    .name(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getName).orElse(null))
+                    .phoneNumber(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getPhone).orElse(null))
+                    .email(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getEmail).orElse(null))
+                    .address(Optional.ofNullable(item.getBasicProfile()).map(UserBasicProfile::getAddress).orElse(null))
+                    .build();
+            limitEngineerList.add(limitEngineer);
+        }
+
+
+        return LimitUserListRes.builder()
+                .limitEngineerList(limitEngineerList)
+                .limitSalesmanList(limitSalesmanList)
+                .build();
+    }
 }

@@ -61,4 +61,11 @@ public class HomeController {
 
         return ApiResponse.success(homeService.userCustomer(userId, role));
     }
+
+    // 25.11.02 추가
+    @GetMapping("/limitUserList")
+    public ApiResponse<LimitUserListRes> limitUserList( ) {
+
+        return ApiResponse.success(homeService.limitUserList());
+    }
 }
