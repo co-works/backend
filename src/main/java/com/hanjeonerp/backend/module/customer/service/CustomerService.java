@@ -82,6 +82,7 @@ public class CustomerService {
                 .electricitySavingRate(req.getElectricitySavingRate())
                 .subsidy(req.getSubsidy())
                 .projectPeriod(req.getProjectPeriod())
+                .memo(req.getMemo())
                 .progressStatus(req.getProgressStatus())
                 .build();
         customerRepository.save(customer);
@@ -206,6 +207,7 @@ public class CustomerService {
                 .electricitySavingRate(customer.getElectricitySavingRate())
                 .subsidy(customer.getSubsidy())
                 .projectPeriod(customer.getProjectPeriod())
+                .memo(customer.getMemo())
                 .progressStatus(customer.getProgressStatus())
                 .customerFileList(fileResList)
                 .build();
@@ -271,6 +273,7 @@ public class CustomerService {
         if (req.getElectricitySavingRate() != null) customer.setElectricitySavingRate(req.getElectricitySavingRate());
         if (req.getSubsidy() != null) customer.setSubsidy(req.getSubsidy());
         if (req.getProjectPeriod() != null) customer.setProjectPeriod(req.getProjectPeriod());
+        if (req.getMemo() != null) customer.setMemo(req.getMemo());
         if (req.getProgressStatus() != null) customer.setProgressStatus(req.getProgressStatus());
 
         // 신규 임대차 공장 저장
