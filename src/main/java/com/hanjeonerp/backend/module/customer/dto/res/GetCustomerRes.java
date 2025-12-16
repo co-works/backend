@@ -122,6 +122,9 @@ public class GetCustomerRes {
     @Schema(description = "수행기간", example = "")
     private String projectPeriod; // 수행기간
 
+    @Schema(description = "메모", example = "")
+    private String memo;
+
     @Schema(description = "진행 상태", example = "")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private ProgressStatus progressStatus; //진행 상태 (타당성 검토 의뢰, 실사, 실사 보고서, 계약, 시공, 사업확인서, 수수료 정산, 반려, 비고 등)

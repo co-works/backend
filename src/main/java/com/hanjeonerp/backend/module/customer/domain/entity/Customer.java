@@ -80,6 +80,9 @@ public class Customer extends BaseTimeEntity {
     @Column(name = "project_period", nullable = true)
     private String projectPeriod; // 수행기간
 
+    @Column(name = "memo", nullable = true)
+    private String memo;
+
     @Column(name = "progress_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProgressStatus progressStatus; //진행 상태
