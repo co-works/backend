@@ -61,6 +61,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 20251226 수정
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 인증이 필요 없는 요청 경로 설정
                         .requestMatchers(HttpMethod.GET,
                                 // Swagger
