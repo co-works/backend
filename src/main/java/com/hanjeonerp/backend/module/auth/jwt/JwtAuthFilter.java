@@ -7,59 +7,89 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
-/**
- * JWT 인증 필터 클래스
- * HTTP 요청에서 JWT 토큰을 추출하고 인증을 수행
- */
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    /**
-     * 필터가 요청을 처리할 때 호출되는 메서드
-     * JWT 토큰을 추출하고 유효성을 검사하여 인증 정보를 설정
-     *
-     * @param request  HTTP 요청 객체
-     * @param response HTTP 응답 객체
-     * @param filterChain 필터 체인
-     * @throws ServletException 예외 발생 시
-     * @throws IOException 입출력 예외 발생 시
-     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = resolveToken(request);
+        long start = System.currentTimeMillis();
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
 
-        if (token != null) {
-            try {
-                jwtTokenProvider.validateTokenOrThrow(token);
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (BaseException e) {
-                log.warn("JWT 인증 실패: {}", e.getMessage());
-                throw e;
-            }
+        log.info("[JWT FILTER] ▶ {} {}", method, uri);
+
+        // OPTIONS 요청은 JWT 검사 안 하고 바로 통과
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            log.info("[JWT FILTER] OPTIONS request bypass");
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        filterChain.doFilter(request, response);
-    }
+        try {
+            String token = resolveToken(request);
 
-    /**
-     * HTTP 요청에서 JWT 토큰을 추출하는 메서드
-     * Authorization 헤더에서 "Bearer " 접두사를 제거하고 토큰을 반환
-     **/
+            if (token != null) {
+                log.info("[JWT FILTER] token detected");
+
+                jwtTokenProvider.validateTokenOrThrow(token);
+                Authentication authentication =
+                        jwtTokenProvider.getAuthentication(token);
+
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
+
+                log.info("[JWT FILTER] authentication success: {}",
+                        authentication.getName());
+            } else {
+                log.info("[JWT FILTER] no token");
+            }
+
+            filterChain.doFilter(request, response);
+
+        } catch (BaseException e) {
+            log.error("[JWT FILTER] authentication failed", e);
+
+            // ❗ 여기서 throw 하지 말고 응답을 만들어서 종료
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("""
+                {
+                  "code": "UNAUTHORIZED",
+                  "message": "Invalid or expired JWT token"
+                }
+            """);
+        } catch (Exception e) {
+            log.error("[JWT FILTER] unexpected error", e);
+
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("""
+                {
+                  "code": "SERVER_ERROR",
+                  "message": "Internal server error"
+                }
+            """);
+        } finally {
+            log.info("[JWT FILTER] ◀ {} {} ({}ms)",
+                    method, uri, System.currentTimeMillis() - start);
+        }
+    }
 
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");

@@ -52,3 +52,19 @@ springdoc:
     enabled: true
     tags-sorter: alpha
     operations-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    # Spring Web (요청/응답, DispatcherServlet)
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    # Spring Security (지금 제일 중요)
+    org.springframework.security: DEBUG
+    # CORS / Filter 흐름
+    org.springframework.web.filter: DEBUG
+    # JWT / 인증 관련 (패키지 기준)
+    com.hanjeonerp.backend.module.auth: DEBUG
+    # JPA / Hibernate
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
